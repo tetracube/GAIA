@@ -1,0 +1,33 @@
+LOG FILE	09/06/2020 10:57:44
+--------------------------------------
+ 
+=============================================================================================
+...LOADING A CLASSIC MACHINE named 'StarClassicDeterministic'
+>>ADDED STATE 'SAD_STAR'.
+>>ADDED STATE 'HAPPY_STAR'.
+>>ADDED STATE 'LOST_STAR'.
+>>ADDED STATE 'HIT_STAR'.
+>>ADDED TRANSITION 'TO_HAPPY_STAR' to FSM.
+>>ADDED TRANSITION 'TO_HAPPY_STAR' to State 'SAD_STAR'.
+>>ADDED TRANSITION 'TO_LOST_STAR' to FSM.
+>>ADDED TRANSITION 'TO_LOST_STAR' to State 'SAD_STAR'.
+>>ADDED TRANSITION 'TO_HIT_STAR' to FSM.
+>>ADDED TRANSITION 'TO_HIT_STAR' to State 'SAD_STAR'.
+>>ADDED TRANSITION 'TO_LOST_STAR' to FSM.
+>>ADDED TRANSITION 'TO_LOST_STAR' to State 'LOST_STAR'.
+>>ADDED TRANSITION 'TO_HAPPY_STAR' to FSM.
+>>ADDED TRANSITION 'TO_HAPPY_STAR' to State 'HAPPY_STAR'.
+>>ADDED TRANSITION 'TO_SAD_STAR' to FSM.
+>>ADDED TRANSITION 'TO_SAD_STAR' to State 'SAD_STAR'.
+States ADDED: 4 of 4
+States NOT ADDED: 0
+Transitions ADDED: 6 of 6
+Transitions NOT ADDED: 0
+Number of errors: 0
+ 
+(Parsing of CLASSIC Machine named 'StarClassicDeterministic' is OK!)
+
+--------SUMMARY--------
+Number of main machines: 1
+Number of submachines: 0
+TOTAL ADDED: 1
