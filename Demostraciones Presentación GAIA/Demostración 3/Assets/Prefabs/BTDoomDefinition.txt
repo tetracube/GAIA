@@ -1,0 +1,27 @@
+tree("Root")
+	//Adjust position, aim and shoot, in that order
+	sequence
+		tree("Movement")
+		tree("Shooting")
+
+tree("Movement")
+	//Check if position is too far, too close or just right and act acordingly
+	fallback
+		sequence
+			tooFar
+			Aim
+			Move
+
+		sequence
+			tooClose
+			Aim
+			MoveBack
+
+		isStopped
+
+tree("Shooting")
+	//If we aimed, check if we are moving, check distance again, aim again and shoot
+	sequence
+		Aim
+		Spin
+		ShootNonStop
