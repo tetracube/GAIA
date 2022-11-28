@@ -209,8 +209,8 @@ public class FSM_Machine {
 										
 					foreach(Transition t in CurrentState.getTransitions()){
 						this.RandomNumber = rnd.Next(99);
-						List<FSM_Event> t_events = t.getEvents();	
-						foreach(FSM_Event ev in t_events){
+						List<Event> t_events = t.getEvents();	
+						foreach(Event ev in t_events){
 							if(ev.getEventTag()==CEvent){
 								//Test if there's 
 								if(this.RandomNumber<t.getProbability()){
@@ -229,8 +229,8 @@ public class FSM_Machine {
 				
 				}else{//NOT PROBABILISTIC (DETERMINISTIC FSM)
 					foreach(Transition t in CurrentState.getTransitions()){
-						List<FSM_Event> t_events = t.getEvents();	
-						foreach(FSM_Event ev in t_events){
+						List<Event> t_events = t.getEvents();	
+						foreach(Event ev in t_events){
 							if(ev.getEventTag()==CEvent && CurrentState.getTag()==t.getFinal().getTag() && t_aux==null){ //exist to myself
 								t_aux = t;
 							}else if(ev.getEventTag()==CEvent && CurrentState.getTag()!=t.getFinal().getTag() && t_aux==null){ //exist but to another
@@ -304,8 +304,8 @@ public class FSM_Machine {
 
 					foreach(Transition t in CurrentState.getTransitions()){
 						this.RandomNumber = rnd.Next(99);
-						List<FSM_Event> t_events = t.getEvents();	
-						foreach(FSM_Event ev in t_events){
+						List<Event> t_events = t.getEvents();	
+						foreach(Event ev in t_events){
 							if(ev.getEventTag()==CEvent){
 								//if there's 
 								if(this.RandomNumber<t.getProbability()){
@@ -325,8 +325,8 @@ public class FSM_Machine {
 					
 				}else{//(INERTIAL-DETERMINISTIC FSM)
 					foreach(Transition t in CurrentState.getTransitions()){
-						List<FSM_Event> t_events = t.getEvents();	
-						foreach(FSM_Event ev in t_events){
+						List<Event> t_events = t.getEvents();	
+						foreach(Event ev in t_events){
 							if(ev.getEventTag()==CEvent && CurrentState.getTag()==t.getFinal().getTag() && t_aux==null){ //exist to myself
 								t_aux = t;
 							}else if(ev.getEventTag()==CEvent && CurrentState.getTag()!=t.getFinal().getTag() && t_aux==null){ //exist but to another
@@ -410,15 +410,15 @@ public class FSM_Machine {
 										
 					foreach(Transition t in CurrentState.getTransitions()){
 						this.RandomNumber = rnd.Next(99);
-						List<FSM_Event> t_events = t.getEvents();	
-						foreach(FSM_Event ev in t_events){
+						List<Event> t_events = t.getEvents();	
+						foreach(Event ev in t_events){
 							if(ev.getEventTag()==CEvent){
 								//Test if there's 
 								if(this.RandomNumber<t.getProbability()){
 									t_aux = t;
 									if(CurrentState.getTag()!=t_aux.getFinal().getTag()){
 										change=true;
-										if(ev.getEventType() == 1 && (t.getFinal().getPriority() > CurrentState.getPriority())) //if EVENT IS STACKABLE
+										if(Event.EventType.STACKABLE == ev.getEventType() && (t.getFinal().getPriority() > CurrentState.getPriority())) //if EVENT IS STACKABLE
 											stackable = true;
 									}else{
 										change=false;
@@ -432,14 +432,14 @@ public class FSM_Machine {
 					
 				}else{//(STACK-DETERMINISTIC FSM)
 					foreach(Transition t in CurrentState.getTransitions()){
-						List<FSM_Event> t_events = t.getEvents();	
-						foreach(FSM_Event ev in t_events){
+						List<Event> t_events = t.getEvents();	
+						foreach(Event ev in t_events){
 							if(ev.getEventTag()==CEvent && CurrentState.getTag()==t.getFinal().getTag() && t_aux==null){ //Exist but to myself
 								t_aux = t;
 							}else if(ev.getEventTag()==CEvent && CurrentState.getTag()!=t.getFinal().getTag() && t_aux==null){ //Exist but to another
 								t_aux = t;
 								change = true;
-								if(ev.getEventType() == 1 && (t.getFinal().getPriority() > CurrentState.getPriority())) //if EVENT IS STACKABLE
+								if(Event.EventType.STACKABLE == ev.getEventType() && (t.getFinal().getPriority() > CurrentState.getPriority())) //if EVENT IS STACKABLE
 									stackable = true;
 							}
 						}
@@ -558,8 +558,8 @@ public class FSM_Machine {
 							
 							foreach(Transition t in EnabledStatesCopy[es].getTransitions()){
 								this.RandomNumber = rnd.Next(99);
-								List<FSM_Event> t_events = t.getEvents();	
-								foreach(FSM_Event ev in t_events){
+								List<Event> t_events = t.getEvents();	
+								foreach(Event ev in t_events){
 									if(ev.getEventTag()==CEvent){
 										//Test if there's 
 										if(this.RandomNumber<t.getProbability()){
@@ -580,7 +580,7 @@ public class FSM_Machine {
 							
 						}else{//(CONCURRENT-DETERMINISTIC FSM)
 							foreach(Transition t in EnabledStatesCopy[es].getTransitions()){
-									foreach(FSM_Event ev in t.getEvents ()){
+									foreach(Event ev in t.getEvents ()){
 										if(ev.getEventTag()==CurrentEvent && EnabledStatesCopy[es].getTag()==t.getFinal().getTag()){ //exist but to myself
 											t_aux = t;
 											break;

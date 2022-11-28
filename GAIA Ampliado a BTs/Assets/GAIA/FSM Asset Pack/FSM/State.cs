@@ -1,5 +1,7 @@
-using System.Collections.Generic;
 using System;
+using System.Collections.Generic;
+using System.Runtime.CompilerServices;
+
 
 namespace GAIA{
 
@@ -8,10 +10,14 @@ namespace GAIA{
     // </summary>
     // <remarks></remarks>
     public class State {
-	
-	    //State Class attributes
+
+        public const int NO_PRIORITY = -1;
+        public const int NO_LATENCY  = -1;
+        public const int NO_CREDITS  = -1;
+
+        //State Class attributes
         //<summary>State tag identifier</summary>
-	    int state_TAG;
+        int state_TAG;
         //<summary>Action tag identifier of this State</summary>
         int action_TAG;
         //<summary>IN Action tag identifier of this State </summary>
@@ -19,7 +25,7 @@ namespace GAIA{
         //<summary>OUT Action tag identifier of this State </summary>
         int out_action_TAG;
         //<summary>Flag that determines if this state is initial </summary>
-	    string initial;
+        public bool initial { get; }
         //<summary>State's name (string identifier)	 </summary>								
 	    string stateName;
         //<summary>List of this state's transitions</summary>	
@@ -53,7 +59,7 @@ namespace GAIA{
         // <param name="in_action_TAG">IN action tag identifier of this state</param>
         // <param name="out_action_TAG">OUT action tag identifier of this state</param>
         // <remarks>It can be used in every FA</remarks>
-	    public State(string ID, string FlagInitial, int state_tag, int action_tag, int in_action_TAG, int out_action_TAG){
+	    public State(string ID, bool FlagInitial, int state_tag, int action_tag, int in_action_TAG, int out_action_TAG){
 		    this.stateName = ID;
 		    this.initial = FlagInitial;
 		    this.stateTransitions = new List<Transition>();
@@ -75,7 +81,7 @@ namespace GAIA{
         // <param name="out_action_TAG">OUT action tag identifier of this state</param>
         // <param name="priority">Priority of this State. It has to be >=0 </param>
         // <remarks>Only used in FA_Stack</remarks>
-	    public State(string ID, string FlagInitial, int state_tag, int action_tag, int in_action_TAG, int out_action_TAG, uint priority){
+	    public State(string ID, bool FlagInitial, int state_tag, int action_tag, int in_action_TAG, int out_action_TAG, uint priority){
 		    this.stateName = ID;
 		    this.initial = FlagInitial;
 		    this.stateTransitions = new List<Transition>();
@@ -97,7 +103,7 @@ namespace GAIA{
         // <param name="out_action_TAG">OUT action tag identifier of this state</param>
         // <param name="latency">Latency of this state</param>
         // <remarks>Only used in FA_Inertial</remarks>
-	    public State(string ID, string FlagInitial, int state_tag, int action_tag, int in_action_TAG, int out_action_TAG, int latency){
+	    public State(string ID, bool FlagInitial, int state_tag, int action_tag, int in_action_TAG, int out_action_TAG, int latency){
 		    this.stateName = ID;
 		    this.initial = FlagInitial;
 		    this.stateTransitions = new List<Transition>();
@@ -119,7 +125,7 @@ namespace GAIA{
         // <param name="out_action_TAG">OUT action tag identifier of this state</param>
         // <param name="credits">Credits of execution of this state</param>
         // <remarks>Only used in FA_Concurrent_States</remarks>
-	    public State(string ID, string FlagInitial, int state_tag, int action_tag, int in_action_TAG, int out_action_TAG, short credits){
+	    public State(string ID, bool FlagInitial, int state_tag, int action_tag, int in_action_TAG, int out_action_TAG, short credits){
 		    this.stateName = ID;
 		    this.initial = FlagInitial;
 		    this.stateTransitions = new List<Transition>();
@@ -137,16 +143,16 @@ namespace GAIA{
         // </summary>
         // <param name="subFA"> FA_Classic object (any FA is valid)</param>
         // <returns>
-        // 1 if OK
-        //-1 if cannot be attached
+        // true if OK
+        // false if the SubFA cannot be attached
         //</returns>
         // <remarks></remarks>
-	    public int addFA(FA_Classic subFA){
+	    public bool addFA(FA_Classic subFA){
 		    try{
 			    this.subFA = subFA;
-			    return 1;
+			    return true;
 		    }catch(Exception e){
-			    return -1;
+			    return false;
 		    }
 	    }
 	
@@ -156,85 +162,73 @@ namespace GAIA{
         // </summary>
         // <param name="newTransition">Transition object</param>
         // <returns>
-        // 1 if OK
-        //-1 if error. (Transition has already been added to this State or wrong parameter)
+        // true if OK
+        // false if error. (Transition has already been added to this State or wrong parameter)
         //</returns>
         // <remarks></remarks>
-	    public int addTransition(Transition newTransition){
+	    public bool addTransition(Transition newTransition){
 		    if(stateTransitions.Contains(newTransition)){
-			    return -1;
+			    return false;
 			    //Debug.LogError("State.cs - This state has already the transition");
 		    }else{
 			    stateTransitions.Add(newTransition);
-			    return 1;
+			    return true;
 		    }
 	    }
-	    #endregion
+        #endregion
 
-	    #region GET METHODS
+        #region GET METHODS
 
-	
         // <summary>
         // Get the tag assigned to this state
         // </summary>
         // <returns>int value</returns>
         // <remarks></remarks>
-	    public int getTag(){
-		    return this.state_TAG;
-	    }
-	
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public int getTag() { return this.state_TAG; }
+
         // <summary>
         // Get the ID that identifies this state
         // </summary>
         // <returns>string value</returns>
         // <remarks></remarks>
-	    public string getID(){
-		    return this.stateName;
-	    }
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public string getID() { return this.stateName; }
 
-	
+
         // <summary>
         // Get latency if it exists
         // </summary>
         // <returns>
         // Latency value if OK
-        // -1 if error. This State has not got latency
+        // NO_LATENCY if error. This State has not got latency
         //</returns>
         // <remarks></remarks>
-	    public int getLatency(){
-		    if(this.latency!=null) return this.latency;
-		    else return -1;
-	    }
-	
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public int getLatency() { if(null != latency) return latency; else return NO_LATENCY; }
+
         // <summary>
         // Get priority if it exists
         // </summary>
         // <returns>
         // Priority value if OK
-        // -1 if error. This State has not got priority
+        // NO_PRIORITY if error. This State has not got priority
         //</returns>
         // <remarks></remarks>
-	    public int getPriority(){
-		    if(this.priority!=null) return (int)this.priority;
-		    else return -1;
-	    }
-
-	
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public int getPriority(){ if(null != priority) return (int)priority; else return NO_PRIORITY; }
 
         // <summary>
         // Get credits if they exist
         // </summary>
         // <returns>
         // Credits value if OK
-        // -1 if error. This State has not got execution credits
+        // NO_CREDITS if error. This State has not got execution credits
         //</returns>
         // <remarks></remarks>
-	    public short getCredits(){
-		    if(this.State_credits!=null) return this.State_credits;
-		    else return -1;
-	    }
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public short getCredits() { if(this.State_credits!=null) return this.State_credits; else return NO_CREDITS; }
 
-	
         // <summary>
         // Get subFA if it exists
         // </summary>
@@ -243,60 +237,40 @@ namespace GAIA{
         // Null value if error. There is not a subFA attached to this State
         //</returns>
         // <remarks></remarks>
-	    public FA_Classic getSubFA(){
-		    if(this.subFA!=null) return this.subFA;
-		    else return null;
-	    }
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public FA_Classic getSubFA() { if(this.subFA!=null) return this.subFA; else return null; }
 
-	
-        // <summary>
-        // Get if this State is initial or not
-        // </summary>
-        // <returns>True or false</returns>
-        // <remarks></remarks>
-	    public bool isInitial(){
-		    if(initial.Equals("YES")) return true;
-		    else if(initial.Equals("NO")) return false;
-		    else {
-			    //Debug.LogError("State.cs - Error in xml document (<State initial={YES/NO}>)"); 
-			    return false;
-		    }
-	    }
-	
         // <summary>
         // Get the list of transitions of this state
         // </summary>
         // <returns>List of transitions</returns>
         // <remarks></remarks>
-	    public List<Transition> getTransitions(){
-		    return this.stateTransitions;
-	    }
-
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public List<Transition> getTransitions() { return this.stateTransitions; }
 
         // <summary>
         // Get the action tag assigned to this state
         // </summary>
         // <returns>tag value</returns>
         // <remarks></remarks>
-	    public int getAction(){
-		    return this.action_TAG;
-	    }
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public int getAction() { return this.action_TAG; }
+
         // <summary>
         // Get the IN action tag assigned to this state
         // </summary>
         // <returns>IN tag value</returns>
         // <remarks></remarks>
-	    public int getInAction(){
-		    return this.in_action_TAG;
-	    }
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public int getInAction() { return this.in_action_TAG; }
+
         // <summary>
         // Get the OUT action tag assigned to this state
         // </summary>
         // <returns>OUT tag value</returns>
         // <remarks></remarks>
-	    public int getOutAction(){
-		    return this.out_action_TAG;
-	    }
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public int getOutAction() { return this.out_action_TAG; }
 
 	    #endregion	
     }

@@ -9,6 +9,18 @@ using GAIA;
 
 namespace GAIA
 {
+    public enum ParsingErrors
+    {
+        OK,         ///< There is no problem
+        ParserReq,  ///< There is no parser available
+        WrongFA,    ///< The FA cannot be parsed or it is repeated
+        WrongBT,    ///< The FA cannot be parsed or it is repeated
+        ParsingErr, ///< There is an error parsing the file
+        TotalParsingStates
+    }
+
+    //-2 if there is a problem adding the BT into the dictionary
+
     // Manager of FSMs and BTs
     public class GAIA_Manager
     {
@@ -51,70 +63,57 @@ namespace GAIA
 
         // Add a machine (passed as FA parameter) to this GAIA_Manager
         // Returns:
-        // 1 if OK
-        //-1 if cannot be added
-        public int addFSM(FA_Classic fsm)
+        // true if OK
+        // false if cannot be added
+        public bool addFSM(FA_Classic fsm)
         {
             try
             {
                 //Add the FA to the attribute FSM_dic
                 FSM_dic.Add(new Tuple(fsm.getTag(), fsm.getFAid()), fsm);
-                return 1;
+                return true;
             }
-            catch (Exception e)
+            catch (Exception)
             {
-                return -1;
+                return false;
             }
         }
 
 
         // Adds a machine (located in path) to this GAIA_Manager
-        // Returns:
-        // 1 if OK
-        //-1 if an GAIA_Parser is required to use this method
-        //-2 if cannot be added (wrong parameters or repeated FA)
-        //-3 if there are errors parsing file located in path
-        public int addFSM(string path)
+        public ParsingErrors addFSM(string path)
         {
-            if (this.parser == null)
-            {
-                return -1;
-            }
+            if (null == parser)
+                return ParsingErrors.ParserReq;
             else
             {
                 //Invoke parser with path
                 FA_Classic parsedfsm = parser.ParsePath(path);
-                if (parsedfsm != null)
+                if (null != parsedfsm)
                 {
                     try
                     {
                         FSM_dic.Add(new Tuple(parsedfsm.getTag(), parsedfsm.getFAid()), parsedfsm);
-                        return 1;
+                        return ParsingErrors.OK;
                     }
-                    catch (Exception e)
+                    catch (Exception)
                     {
-                        return -2;
+                        return ParsingErrors.WrongFA;
                     }
                 }
-                else return -3;
+                else return ParsingErrors.ParsingErr; 
             }
         }
 
 #if (PANDA)
         // Add a behaviour tree (passed as the contents of an xml file in the form of a string) to this GAIA_Manager
-        // Returns:
-        // 1 if OK
-        //-1 if parser is null
-        //-2 if there is a problem adding the BT into the dictionary
-        //-3 if the contents returned by the parser are null
-
-        public int addBT(string content)
+        public ParsingErrors addBT(string content)
         {
             string[] parsedbt = new string[1];
 
-            if (this.parser == null)
+            if (null == parser)
             {
-                return -1;
+                return ParsingErrors.ParserReq;
             }
             else
             {
@@ -127,50 +126,50 @@ namespace GAIA
                     try
                     {
                         BT_dic.Add(parsedbt[0], parsedbt[1]);
-                        return 1;
+                        return ParsingErrors.OK;
                     }
-                    catch (Exception e)
+                    catch (Exception)
                     {
-                        return -2;
+                        return ParsingErrors.WrongBT;
                     }
                 }
-                else return -3;
+                else return ParsingErrors.ParsingErr;
             }
         }
 #endif
 
         // Removes a machine that had been added to this GAIA_Manager
         // Returns:
-        // 1 if OK
-        //-1 if cannot remove that machine (corrupted fsm object or it does not exist)
-        public int deleteFSM(FA_Classic fsm)
+        // true if OK
+        // false if cannot remove that machine (corrupted fsm object or it does not exist)
+        public bool deleteFSM(FA_Classic fsm)
         {
             try
             {
                 FSM_dic.Remove(new Tuple(fsm.getTag(), fsm.getFAid()));
-                return 1;
+                return true;
             }
-            catch (Exception e)
+            catch (Exception)
             {
-                return -1;
+                return false;
             }
         }
 
 #if (PANDA)
         // Removes a behaviour tree that had been added to this GAIA_Manager
         // Returns:
-        // 1 if OK
-        //-1 if cannot remove that behaviour tree (corrupted BT object or it does not exist)
-        public int deleteBT(string bt_id)
+        // true if OK
+        // false if cannot remove that behaviour tree (corrupted BT object or it does not exist)
+        public bool deleteBT(string bt_id)
         {
             try
             {
                 BT_dic.Remove(bt_id);
-                return 1;
+                return true;
             }
-            catch (Exception e)
+            catch (Exception)
             {
-                return -1;
+                return false;
             }
         }
 #endif

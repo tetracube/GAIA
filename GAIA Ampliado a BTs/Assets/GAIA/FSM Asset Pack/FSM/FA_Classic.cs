@@ -1,5 +1,5 @@
 using System.Collections.Generic;
-
+using System.Runtime.CompilerServices;
 
 // <summary>
 // IA management based on Classic Finite State Machines 
@@ -18,12 +18,8 @@ namespace GAIA{
 	    protected List<State> StatesList;
         //<summary> List of transitions of this FA </summary>			
 	    protected List<Transition> TransitionsList;
-        //<summary> Number of added states </summary>
-	    protected int n_AddedStates;
         //<summary> Number of not added states </summary>
         protected int n_notAddedStates;
-        //<summary> Number of added transitions </summary>
-        protected int n_AddedTransitions;
         //<summary> Number of not added transitions </summary>
         protected int n_notAddedTransitions;
         //<summary> Tag that identifies this FA </summary>
@@ -31,7 +27,7 @@ namespace GAIA{
         //<summary> Position in the FA (used internally) </summary>
 	    protected int positionInGraph;
         //<summary> Type of FA</summary>
-	    protected string FAtype;
+	    protected FAType FAtype;
         //<summary> Flag that determines if there is one initial state in this FA</summary>						
 	    protected bool existInitial;
         //<summary> Initial state</summary>			
@@ -40,6 +36,24 @@ namespace GAIA{
 	    protected string CallbackName;
         //<summary> Probabilistic</summary>
 	    protected bool FlagProbabilistic;
+
+		public enum FAType
+        {
+			Classic,
+			Concurrent,
+			Inertial,
+			Stacked,
+			TotalSupportedFAType
+        }
+
+		//This string list has to match exactly with the FAType, both with the order and the amount
+		private static string[] TypeName =
+		{
+			"Classic",
+			"Concurrent",
+			"Inertial",
+			"Stacked"
+		};
 
         // <summary>
         // Initializes a new instance of the <see cref="T:FA_Classic">FA_Classic</see> class. 
@@ -54,9 +68,9 @@ namespace GAIA{
 		    existInitial = false;
 		    StatesList = new List<State>();
 		    TransitionsList = new List<Transition>();
-		    n_AddedStates = n_notAddedStates = n_AddedTransitions = n_notAddedTransitions = 0;
+		    n_notAddedStates = n_notAddedTransitions = 0;
 		    positionInGraph = -1; //Default value
-		    FAtype = "Classic";
+		    FAtype = FAType.Classic;
 		    FA_tag = tag;
 		    this.CallbackName = CallbackName;
 		    this.FlagProbabilistic = FlagProbabilistic;
@@ -69,7 +83,7 @@ namespace GAIA{
         // <remarks>It must be called when the FA is complete</remarks>
 	    public virtual void Start () {
 		    foreach(State st in StatesList){
-			    if(st.isInitial()){
+			    if(st.initial){
 				    existInitial = true;
 				    initial = st;
 				    positionInGraph = StatesList.IndexOf(st);
@@ -90,21 +104,19 @@ namespace GAIA{
         // </summary>
         // <param name="newState">New instance of State class</param>
         // <returns>
-        // 1 if OK
-	    //-1 if cannot be added
+        // true if OK
+	    // false if cannot be added
         //</returns>
         // <remarks></remarks>
-	    public int addState(State newState){
-		    int res = -1;
+	    public bool addState(State newState){
 		    if(StatesList.Contains(newState)){
 			    n_notAddedStates++;
+				return false;
 		    }else{
-			    res = 1;
 			    StatesList.Add(newState);
-			    n_AddedStates++;
-		    }
-		    return res;
-	    }
+			    return true;
+			}
+		}
 	
 	    
         // <summary>
@@ -112,152 +124,152 @@ namespace GAIA{
         // </summary>
         // <param name="newTransition">New instance of Transition class</param>
         // <returns>
-        // 1 if OK
-        // -1 if cannot be added
+        // true if OK
+        // false if cannot be added
         //</returns>
         // <remarks></remarks>
-	    public int addTransition(Transition newTransition){
-		    int res = -1;
+	    public bool addTransition(Transition newTransition){
 		    if ((StatesList.Contains(newTransition.getOrigin()) && StatesList.Contains(newTransition.getFinal())) && !newTransition.getID().Equals("")){ //States that belong to newTransition are in the Graph
 			    TransitionsList.Add(newTransition);//Remember to add the transition to state's transition list
-			    n_AddedTransitions++;
-			    res = 1;
+			    return true;
 		    }else{
 			    n_notAddedTransitions++;
-		    }
-		    return res;
-	    }
-	    #endregion
-	
-	    #region GET methods
-	    
-        // <summary>
-        //Get the tag that identifies the FSM based on this FA
-        // </summary>
-        // <returns>An identifier number</returns>
-        // <remarks></remarks>
-	    public int getTag(){
-		    return this.FA_tag;
-	    }
-        // <summary>
-        // Get the events routine of the FSM based on this FA
-        // </summary>
-        // <returns>An string with the name of the routine</returns>
-        // <remarks></remarks>
-	    public string getCallback(){
-		    return this.CallbackName;
-	    }
-	    
-        // <summary>
-        //Get current nº of states that have been added to the FSM based on this FA
-        // </summary>
-        // <returns>int value</returns>
-        // <remarks>Only can be used if FSM_Parser is used too</remarks>
-	    public int getAddedStates(){
-		    return n_AddedStates;
-	    }
-        // <summary>
-        //Get current nº of states that have not been added to the FSM based on this FA
-        // </summary>
-        // <returns>int value</returns>
-        // <remarks>Only can be used if FSM_Parser is used too</remarks>
-	    public int getNotAddedStates(){
-		    return n_notAddedStates;
-	    }
-        // <summary>
-        //Obtain current nº of transitions that have been added to the FSM based on this FA
-        // </summary>
-        // <returns>int value</returns>
-        // <remarks>Only can be used if FSM_Parser is used too</remarks>
-	    public int getAddedTransitions(){
-		    return n_AddedTransitions;
-	    }
-        // <summary>
-        //Get current nº of transitions that have not been added to the FSM based on this FA
-        // </summary>
-        // <returns>int value</returns>
-        // <remarks>Only can be used if FSM_Parser is used too</remarks>
-	    public int getNotAddedTransitions(){
-		    return n_notAddedTransitions;
-	    }
-	    
-        // <summary>
-        //Get a boolean flag that determines if exist one initial state in the FSM based on this FA
-        // </summary>
-        // <returns>True or False</returns>
-        // <remarks></remarks>
-	    public bool ExistInitial(){
-		    return this.existInitial;
-	    }
-	    
-        // <summary>
-        // Get the StatesList
-        // </summary>
-        // <returns>List of states of the FSM based on this FA</returns>
-        // <remarks>Current added States of the FSM based on this FA</remarks>
-	    public List<State> getStatesList(){
-		    return StatesList;
-	    }
-        // <summary>
-        // Get the TransitionsList
-        // </summary>
-        // <returns>List of transitions of the FSM based on this FA</returns>
-        // <remarks>Current added transitions of the FSM based on this FA</remarks>
-	    public List<Transition> getTransitionsList(){
-		    return TransitionsList;
-	    }
-	    
-        // <summary>
-        // Get the state (if exist) whose identifier is ID
-        // </summary>
-        // <param name="ID">Identifier or name of a State </param>
-        // <returns>State value or null </returns>
-        // <remarks></remarks>
-	    public State getStateByID(string ID){
-		    foreach (State s in StatesList){
+				return false;
+			}
+		}
+		#endregion
+
+		#region GET methods
+
+		// <summary>
+		//Get the tag that identifies the FSM based on this FA
+		// </summary>
+		// <returns>An identifier number</returns>
+		// <remarks></remarks>
+		[MethodImpl(MethodImplOptions.AggressiveInlining)]
+		public int getTag(){ return this.FA_tag; }
+
+		// <summary>
+		// Get the events routine of the FSM based on this FA
+		// </summary>
+		// <returns>An string with the name of the routine</returns>
+		// <remarks></remarks>
+		[MethodImpl(MethodImplOptions.AggressiveInlining)]
+		public string getCallback(){ return this.CallbackName; }
+
+		// <summary>
+		//Get current nº of states that have been added to the FSM based on this FA
+		// </summary>
+		// <returns>int value</returns>
+		// <remarks>Only can be used if FSM_Parser is used too</remarks>
+		[MethodImpl(MethodImplOptions.AggressiveInlining)]
+		public int getAddedStates(){ return StatesList.Count; }
+
+		// <summary>
+		//Get current nº of states that have not been added to the FSM based on this FA
+		// </summary>
+		// <returns>int value</returns>
+		// <remarks>Only can be used if FSM_Parser is used too</remarks>
+		[MethodImpl(MethodImplOptions.AggressiveInlining)]
+		public int getNotAddedStates(){ return n_notAddedStates; }
+
+		// <summary>
+		//Obtain current nº of transitions that have been added to the FSM based on this FA
+		// </summary>
+		// <returns>int value</returns>
+		// <remarks>Only can be used if FSM_Parser is used too</remarks>
+		[MethodImpl(MethodImplOptions.AggressiveInlining)]
+		public int getAddedTransitions(){ return TransitionsList.Count; }
+
+		// <summary>
+		//Get current nº of transitions that have not been added to the FSM based on this FA
+		// </summary>
+		// <returns>int value</returns>
+		// <remarks>Only can be used if FSM_Parser is used too</remarks>
+		[MethodImpl(MethodImplOptions.AggressiveInlining)]
+		public int getNotAddedTransitions(){ return n_notAddedTransitions; }
+
+		// <summary>
+		//Get a boolean flag that determines if exist one initial state in the FSM based on this FA
+		// </summary>
+		// <returns>True or False</returns>
+		// <remarks></remarks>
+		[MethodImpl(MethodImplOptions.AggressiveInlining)]
+		public bool ExistInitial(){ return this.existInitial; }
+
+		// <summary>
+		// Get the StatesList
+		// </summary>
+		// <returns>List of states of the FSM based on this FA</returns>
+		// <remarks>Current added States of the FSM based on this FA</remarks>
+		[MethodImpl(MethodImplOptions.AggressiveInlining)]
+		public List<State> getStatesList(){ return StatesList; }
+
+		// <summary>
+		// Get the TransitionsList
+		// </summary>
+		// <returns>List of transitions of the FSM based on this FA</returns>
+		// <remarks>Current added transitions of the FSM based on this FA</remarks>
+		[MethodImpl(MethodImplOptions.AggressiveInlining)]
+		public List<Transition> getTransitionsList(){ return TransitionsList; }
+
+		// <summary>
+		// Get the state (if exist) whose identifier is ID
+		// </summary>
+		// <param name="ID">Identifier or name of a State </param>
+		// <returns>State value or null </returns>
+		// <remarks></remarks>
+		[MethodImpl(MethodImplOptions.AggressiveInlining)]
+		public State getStateByID(string ID){
+		    foreach (State s in StatesList)
 			    if(s.getID().Equals(ID)) return s;
-		    }
 		    return null;
 	    }
-        // <summary>
-        // Get the state (if exist) whose identification number is tag
-        // </summary>
-        // <param name="tag">Identification tag</param>
-        // <returns>State value or null</returns>
-        // <remarks></remarks>
-	    public State getStateByTag(int tag){
-		    foreach(State s in StatesList){
+		// <summary>
+		// Get the state (if exist) whose identification number is tag
+		// </summary>
+		// <param name="tag">Identification tag</param>
+		// <returns>State value or null</returns>
+		// <remarks></remarks>
+		[MethodImpl(MethodImplOptions.AggressiveInlining)]
+		public State getStateByTag(int tag){
+		    foreach(State s in StatesList)
 			    if(s.getTag()==tag) return s;
-		    }
 		    return null;
 	    }
 
-	    
-        // <summary>
-        // Get initial state in the FSM based on this FA
-        // </summary>
-        // <returns>Initial State value or null</returns>
-        // <remarks>If the FA is Concurrent_States one, use getInitials method</remarks>
-	    public State getInitialState(){
-		    return this.initial;
-	    }
-	    
-        // <summary>
-        // Get FA type (virtual, the other FAs override this method)
-        // </summary>
-        // <returns>The name of the FA type</returns>
-        // <remarks></remarks>
-	    public virtual string getFAtype(){
-		    return this.FAtype;
-	    }
-	    
-        // <summary>
-        // Get FA id (virtual, the other FAs override this method)
-        // </summary>
-        // <returns>The name of the FSM based on this FA</returns>
-        // <remarks></remarks>
-	    public virtual string getFAid(){
-		    return this.ID;
+
+		// <summary>
+		// Get initial state in the FSM based on this FA
+		// </summary>
+		// <returns>Initial State value or null</returns>
+		// <remarks>If the FA is Concurrent_States one, use getInitials method</remarks>
+		[MethodImpl(MethodImplOptions.AggressiveInlining)]
+		public State getInitialState(){ return this.initial; }
+
+		// <summary>
+		// Converts the FAType into its corresponding string
+		// </summary>
+		// <returns>The name of the FA type</returns>
+		// <remarks></remarks>
+		[MethodImpl(MethodImplOptions.AggressiveInlining)]
+		public string getFAtypeName(){ return TypeName[(int)FAtype]; }
+
+		// <summary>
+		// Overloads the FAType into its corresponding string
+		// </summary>
+		// <returns>The name of the FA type</returns>
+		// <remarks></remarks>
+		[MethodImpl(MethodImplOptions.AggressiveInlining)]
+		public FAType getFAtype(){ return FAtype; }
+		
+		// <summary>
+		 // Gets its FA id
+		 // </summary>
+		 // <returns>The name of the FSM based on this FA</returns>
+		 // <remarks></remarks>
+		public virtual string getFAid(){
+		    return ID;
 	    }
 	    
         // <summary>

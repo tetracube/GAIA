@@ -19,7 +19,7 @@ public class FA_Inertial : FA_Classic {
     // <remarks></remarks>
 	public FA_Inertial(string ID, int tag, string CallbackName, bool FlagProbability) : base(ID, tag, CallbackName, FlagProbability) {
 		this.ID = ID;
-		this.FAtype = "Inertial";
+		this.FAtype = FAType.Inertial;
 		this.FA_tag = tag;
 		this.CallbackName = CallbackName;
 	}
@@ -33,7 +33,7 @@ public class FA_Inertial : FA_Classic {
     {
         foreach (State st in StatesList)
         {
-            if (st.isInitial())
+            if (st.initial)
             {
                 this.existInitial = true;
                 this.initial = st;
@@ -45,22 +45,5 @@ public class FA_Inertial : FA_Classic {
             }
         }
     }
-    // <summary>
-    // Get FA type
-    // </summary>
-    // <returns>The name of the FA type</returns>
-    // <remarks></remarks>
-	public override string getFAtype(){
-		return this.FAtype;	
-	
-	}
-    // <summary>
-    // Get FA id
-    // </summary>
-    // <returns>The name of the FSM based on this FA</returns>
-    // <remarks></remarks>
-	public override string getFAid(){
-		return this.ID;
-	}
 	}
 }

@@ -28,7 +28,7 @@ namespace GAIA{
         // <remarks></remarks>
 	    public FA_Concurrent_States(string ID, int tag, int num, string CallbackName, bool FlagProbability) : base(ID, tag, CallbackName, FlagProbability) {
 		    this.ID = ID;
-		    FAtype = "Concurrent_States";
+		    FAtype = FAType.Concurrent;
 		    FA_tag = tag;
 		    n_MAX_Concurrent = num;
 		    this.CallbackName = CallbackName;
@@ -45,7 +45,7 @@ namespace GAIA{
 		    StatesCredits = new Dictionary<int, int>();
 
 		    foreach(State st in StatesList){
-			    if(st.isInitial()){
+			    if(st.initial){
 				    existInitial = true;
 				    initiallyEnabled.Add(st);
 				    //this.initial = st;
@@ -74,27 +74,7 @@ namespace GAIA{
 
         //    return EnableBy;
         //}
-
-
-        // <summary>
-        // Get FA type (virtual, the other FAs override this method)
-        // </summary>
-        // <returns>The name of the FA type</returns>
-        // <remarks></remarks>
-	    public override string getFAtype(){
-		    return FAtype;	
-	
-	    }
-       
-        // <summary>
-        // Get FA id (virtual, the other FAs override this method)
-        // </summary>
-        // <returns>The name of the FSM based on this FA</returns>
-        // <remarks></remarks>
-	    public override string getFAid(){
-		    return ID;
-	    }
-
+      
         // <summary>
         // Get the dictionary that controls execution credits
         // </summary>

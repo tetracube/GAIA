@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using System.Runtime.CompilerServices;
 
 namespace GAIA{
 
@@ -21,7 +22,7 @@ public class Transition {
     // <summary>State final to which this transition arrives</summary>
     State final;
     // <summary>Collection of events that enable this transition</summary>
-	List<FSM_Event> EventsList;
+	List<Event> EventsList;
     //<summary>Probability of execution of this transition. Only used if the FA is probabilistic </summary>
 	double? probability; 
 	
@@ -36,7 +37,7 @@ public class Transition {
     // <param name="action_tag">Transition's action tag identifier</param>
     // <param name="EventsList">List of events that enable this transition</param>
     // <remarks>Used in all FAs</remarks>
-	public Transition(string ID, State A, State B, int transition_tag, int action_tag, List<FSM_Event> EventsList){
+	public Transition(string ID, State A, State B, int transition_tag, int action_tag, List<Event> EventsList){
 		this.transitionName = ID;
 		this.origin = A;
 		this.final = B;
@@ -55,7 +56,7 @@ public class Transition {
     // <param name="EventsList">List of events that enable this transition</param>
     // <param name="probability">Probability between 0 and 100. Only used if the FA is probabilistic</param>
     // <remarks>It only can be used if FA is probabilistic. Its use does not make sense in the other FA</remarks>
-	public Transition(string ID, State A, State B, int transition_tag, int action_tag,  List<FSM_Event> EventsList, int probability){
+	public Transition(string ID, State A, State B, int transition_tag, int action_tag,  List<Event> EventsList, int probability){
 		this.transitionName = ID;
 		this.origin = A;
 		this.final = B;
@@ -63,97 +64,84 @@ public class Transition {
 		this.action_TAG = action_tag;
 		this.EventsList = EventsList;
 		
-		//Probability cannot be superior to 100 or inferior to 0
+		//Probability cannot be higher than 100 or negative
 		if(probability>100) this.probability = 100;
 		else if(probability<0) this.probability = 0;
 		else this.probability = probability;
 	}
-	
-	#region GET methods
-	
+
+    #region GET methods
+
     // <summary>
     // Get transition's tag identifier
     // </summary>
     // <returns>transition's tag value</returns>
     // <remarks></remarks>
-	public int getTag(){
-		return this.transition_TAG;
-	}
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public int getTag() { return transition_TAG; }
 
     // <summary>
     // Get transition's action tag identifier
     // </summary>
     // <returns>transition's action tag value</returns>
     // <remarks></remarks>
-	public int getAction(){
-		return this.action_TAG;
-	}
-	//returns events list
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public int getAction(){ return action_TAG; }
+
+    //returns events list
     // <summary>
     // Get the specified list of events that can enable this transition
     // </summary>
     // <returns>List FSM_Events list attached to this transition </returns>
     // <remarks>It can be empty</remarks>
-	public List<FSM_Event> getEvents(){
-		return this.EventsList;
-	}
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public List<Event> getEvents() { return EventsList; }
 
-	
     // <summary>
     // Get probability attached to this transition. 100% default value
     // </summary>
     // <returns>Double number</returns>
     // <remarks></remarks>
-	public double? getProbability(){
-		if(this.probability!=null) return this.probability;
-		else return 100;
-	}
-	
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public double? getProbability() { if(probability!=null) return probability; else return 100; }
+
     // <summary>
     // Get the origin state of this transition
     // </summary>
     // <returns>State object</returns>
     // <remarks></remarks>
-	public State getOrigin(){
-		return this.origin;
-	}
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public State getOrigin() { return origin; }
+
     // <summary>
     // Get the destination state of this transition
     // </summary>
     // <returns>State object</returns>
     // <remarks></remarks>
-	public State getFinal(){
-		return this.final;
-	}
-	
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public State getFinal() { return final; }
+
     // <summary>
     // Get transition's name identifier
     // </summary>
     // <returns>A string value with the ID or null value</returns>
     // <remarks></remarks>
-	public string getID(){
-		if(this.transitionName!=null) return this.transitionName;
-		else return null;
-	}
-	#endregion
-	
-	#region SET methods
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public string getID() { if(transitionName!=null) return transitionName; else return null; }
+    #endregion
+
+    #region SET methods
 
     // <summary>
     // Set this transition's probability value
     // </summary>
     // <returns>
-    // 1 if OK
-    //-1 if error. This transition is not probabilistic
+    // true if OK
+    // false if error. This transition is not probabilistic
     //</returns>
     // <remarks></remarks>
-	public int setProbability(double newProbability){
-		if(this.probability!=null){
-			this.probability = newProbability;
-			return 1;
-		}else
-			return -1;
-	}
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public bool setProbability(double newProbability) { if(null!=probability) { probability = newProbability; return true; } return false; }
 	
 	#endregion
 }
