@@ -19,8 +19,8 @@ namespace GAIA{
         // <remarks></remarks>
 	    public FA_Stack(string ID, int tag, string CallbackName, bool FlagProbability) : base(ID, tag, CallbackName, FlagProbability) {
 		    this.ID = ID;
-		    this.FAtype = "Stack-based";
-		    this.FA_tag = tag;
+		    FAtype = FAType.STACK_BASED;
+		    FA_tag = tag;
 		    this.CallbackName = CallbackName;
 	    }
 	
