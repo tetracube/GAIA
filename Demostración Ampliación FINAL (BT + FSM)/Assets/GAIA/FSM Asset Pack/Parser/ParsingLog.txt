@@ -1,0 +1,58 @@
+
+ 
+=============================================================================================
+...LOADING A CLASSIC MACHINE named 'TankAIDeterministic'
+>>ADDED STATE 'MOVIENDO'.
+>>ADDED STATE 'DISPARANDO'.
+>>ADDED STATE 'APARTANDO'.
+>>ADDED TRANSITION 'MOVIENDO_A_DISPARANDO' to FSM.
+>>ADDED TRANSITION 'MOVIENDO_A_DISPARANDO' to State 'MOVIENDO'.
+>>ADDED TRANSITION 'DISPARANDO_A_MOVIENDO' to FSM.
+>>ADDED TRANSITION 'DISPARANDO_A_MOVIENDO' to State 'DISPARANDO'.
+>>ADDED TRANSITION 'MOVIENDO_A_APARTANDO' to FSM.
+>>ADDED TRANSITION 'MOVIENDO_A_APARTANDO' to State 'MOVIENDO'.
+>>ADDED TRANSITION 'DISPARANDO_A_APARTANDO' to FSM.
+>>ADDED TRANSITION 'DISPARANDO_A_APARTANDO' to State 'DISPARANDO'.
+>>ADDED TRANSITION 'APARTANDO_A_DISPARANDO' to FSM.
+>>ADDED TRANSITION 'APARTANDO_A_DISPARANDO' to State 'APARTANDO'.
+States ADDED: 3 of 3
+States NOT ADDED: 0
+Transitions ADDED: 5 of 5
+Transitions NOT ADDED: 0
+Number of errors: 0
+ 
+(Parsing of CLASSIC Machine named 'TankAIDeterministic' is OK!)
+ 
+=============================================================================================
+...LOADING A BT named 'TankAIBT'
+>>ADDED TREE Root AND ITS CHILDS.
+>>ADDED TREE Movement AND ITS CHILDS.
+>>ADDED TREE Aiming AND ITS CHILDS.
+>>ADDED TREE Shooting AND ITS CHILDS.
+Trees Added: 4 out of 4
+
+(Parsing of BT named "TankAIBT" is OK!)
+ 
+Critical errors parsing BTs: 0
+
+
+ 
+=============================================================================================
+...LOADING A BT named 'BTDoom'
+>>ADDED TREE Root AND ITS CHILDS.
+>>ADDED TREE Movement AND ITS CHILDS.
+>>ADDED TREE Shooting AND ITS CHILDS.
+Trees Added: 3 out of 3
+
+(Parsing of BT named "BTDoom" is OK!)
+ 
+Critical errors parsing BTs: 0
+
+LOG FILE	08/03/2021 19:46:02
+--------------------------------------
+
+--------SUMMARY--------
+Number of main machines: 1
+Number of submachines: 0
+TOTAL MACHINES ADDED: 1
+NUMBER OF BTs ADDED: 2
