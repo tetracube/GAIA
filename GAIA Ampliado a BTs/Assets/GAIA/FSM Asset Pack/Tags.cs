@@ -14,21 +14,6 @@ public static class Tags
 		APARTANDO
 	}
 
-	// <summary>
-	// Get a string that has the name of a given State and returns the type of State associated
-	// </summary>
-	// <returns>StateTags</returns>
-	// <remarks> Lexical analyzer. Converts a lexeme into a tag with meaning </remarks>
-	[MethodImpl(MethodImplOptions.AggressiveInlining)]
-	public static StateTags stateName2Tag(string s)
-	{
-		StateTags type;
-
-		if (Enum.TryParse(s, out type))
-			return type;
-		else return StateTags.NULL;
-	}
-
 	//Transition tags
 	public enum TransitionTags
 	{
@@ -41,21 +26,6 @@ public static class Tags
 		APARTANDO_A_DISPARANDO
 	}
 
-	// <summary>
-	// Get a string that has the name of a given Transition and returns the type of Transition associated
-	// </summary>
-	// <returns>TransitionTags</returns>
-	// <remarks> Lexical analyzer. Converts a lexeme into a tag with meaning </remarks>
-	[MethodImpl(MethodImplOptions.AggressiveInlining)]
-	public static TransitionTags transitionName2Tag(string s)
-	{
-		TransitionTags type;
-
-		if (Enum.TryParse(s, out type))
-			return type;
-		else return TransitionTags.NULL;
-	}   
-	
 	//EVENT TAGS
 	public enum EventTags
 	{
@@ -63,21 +33,6 @@ public static class Tags
 		DISTANCIA_OK,
 		DISTANCIA_NO_OK,
 		DEMASIADO_CERCA
-	}
-
-	// <summary>
-	// Get a string that has the name of a given Event and returns the type of Event associated
-	// </summary>
-	// <returns>EventTags</returns>
-	// <remarks> Lexical analyzer. Converts a lexeme into a tag with meaning </remarks>
-	[MethodImpl(MethodImplOptions.AggressiveInlining)]
-	public static EventTags eventName2Tag(string s)
-	{
-		EventTags type;
-
-		if (Enum.TryParse(s, out type))
-			return type;
-		else return EventTags.NULL;
 	}
 
 	//ACTION TAGS
@@ -90,17 +45,17 @@ public static class Tags
 	}
 
 	// <summary>
-	// Get a string that has the name of a given Action of and returns the type of Action associated
+	// Get a string that has the name of a given enumeration and returns the type of enumerated value associated
 	// </summary>
-	// <returns>ActionTags</returns>
-	// <remarks> Lexical analyzer. Converts a lexeme into a tag with meaning </remarks>
+	// <returns>Generic enumerated value</returns>
+	// <remarks> Generic lexical analyzer. Converts a lexeme into a tag with meaning </remarks>
 	[MethodImpl(MethodImplOptions.AggressiveInlining)]
-	public static ActionTags actionName2Tag(string s)
+	public static TEnum name2Tag<TEnum>(string s)
+	where TEnum : struct
 	{
-		ActionTags type;
+		TEnum resultInputType;
 
-		if (Enum.TryParse(s, out type))
-			return type;
-		else return ActionTags.NULL;
+		Enum.TryParse(s, true, out resultInputType);
+		return resultInputType;
 	}
 }

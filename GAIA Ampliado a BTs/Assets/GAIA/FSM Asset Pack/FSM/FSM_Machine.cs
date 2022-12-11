@@ -12,77 +12,77 @@ namespace GAIA{
     // This class allows to go through a Finite Automaton
     // </summary>
     // <remarks></remarks>
-public class FSM_Machine {
+	public class FSM_Machine {
 	
-	//FSM_Machine Class Attributes
+		//FSM_Machine Class Attributes
 	
-	//COMMON attributes to all machines
+		//COMMON attributes to all machines
 
-    //<summary>Current FSM</summary>
-	FA_Classic FSM;
-    //<summary>Current State in current FSM</summary>
-	State CurrentState;
-    //<summary>List of Actions to do</summary>
-	List <int> DoActions;
-    //<summary>Chosen Transition in selection phase</summary>
-    Transition t_aux;
-    //<summary>Flag that determines a change of state</summary>
-	bool change;
-    //<summary>Character linked to this FSM_Machine</summary>
-	System.Object Character;
+		//<summary>Current FSM</summary>
+		FA_Classic FSM;
+		//<summary>Current State in current FSM</summary>
+		State CurrentState;
+		//<summary>List of Actions to do</summary>
+		List <int> DoActions;
+		//<summary>Chosen Transition in selection phase</summary>
+		Transition t_aux;
+		//<summary>Flag that determines a change of state</summary>
+		bool change;
+		//<summary>Character linked to this FSM_Machine</summary>
+		System.Object Character;
 
-	//Hierarchical feature
+		//Hierarchical feature
 
-    //<summary>List of stacks of FSMs (used to remember the previous one)</summary>
-	List<Stack<FA_Classic>> FSM_Stack;
-    //<summary>List of stacks of States (used to remember the previous one)</summary>
-	List<Stack<State>> SuperiorStack;
+		//<summary>List of stacks of FSMs (used to remember the previous one)</summary>
+		List<Stack<FA_Classic>> FSM_Stack;
+		//<summary>List of stacks of States (used to remember the previous one)</summary>
+		List<Stack<State>> SuperiorStack;
 
-	//--------------------------------
-	//STACK attributes
-    //<summary>Flag that determines if a situation is stackable</summary>
-    bool stackable;				
-	//---------------------------------
+		//--------------------------------
+		//STACK attributes
+		//<summary>Flag that determines if a situation is stackable</summary>
+		bool stackable;				
+		//---------------------------------
 	
-	//PROBABILISTIC attributes
-    //<summary>Random number to determine activation</summary>
-	int RandomNumber;
-    //<summary>Random object to generate random numbers</summary>	
-	System.Random rnd;
-	//---------------------------------
+		//PROBABILISTIC attributes
+		//<summary>Random number to determine activation</summary>
+		int RandomNumber;
+		//<summary>Random object to generate random numbers</summary>	
+		System.Random rnd;
+		//---------------------------------
 	
-	//INERTIAL attributes
-    //<summary>Inertial FSM timer</summary>
-	Stopwatch inertialTimer;
-    //<summary>Stores lastEvent value (used to control the timer)</summary>
-	int lastEvent;
-	//---------------------------------
+		//INERTIAL attributes
+		//<summary>Inertial FSM timer</summary>
+		Stopwatch inertialTimer;
+		//<summary>Stores lastEvent value (used to control the timer)</summary>
+		int lastEvent;
+		//---------------------------------
 
-    //STACK attributes
-    //<summary>Control Stack used in FA_Stack</summary>
-    List<Stack<State>> ControlStack;
+		//STACK attributes
+		//<summary>Control Stack used in FA_Stack</summary>
+		List<Stack<State>> ControlStack;
     
-    //FSM_CONCURRENT_STATES
-    //<summary>Enabled States in this cycle</summary>
-	List<State> EnabledStates;
-    //<summary>Auxiliar list of enabled states</summary> 
-	List<State> EnabledStatesCopy;
-    //<summary>Dictionary of execution credits</summary>
-	Dictionary<int, int> StatesCredits;
+		//FSM_CONCURRENT_STATES
+		//<summary>Enabled States in this cycle</summary>
+		List<State> EnabledStates;
+		//<summary>Dictionary of execution credits</summary>
+		Dictionary<int, int> StatesCredits;
 
-	//---------------------------------
-    //<summary>Flag to update enabled states in current cycle</summary>
-	bool UpdateEnabled;
-    //<summary>Max number of concurrent states</summary>
-	int MaxEnabled;
+		//---------------------------------
+		//<summary>Flag to update enabled states in current cycle</summary>
+		bool UpdateEnabled;
+		//<summary>Max number of concurrent states</summary>
+		int MaxEnabled;
 
-    // <summary>
-    // Initializes a new instance of the <see cref="T:FSM.FSM_Machine">FSM_Machine</see> class. 
-    // </summary>
-    // <param name="fsm">FA object</param>
-    // <param name="character">Character that demands this FSM based on fsm param</param>
-    // <remarks>FSM_Manager uses this method to initialize a machine</remarks>
-	public FSM_Machine(FA_Classic fsm, System.Object character){
+		MethodInfo EventsRoutine;
+
+		// <summary>
+		// Initializes a new instance of the <see cref="T:FSM.FSM_Machine">FSM_Machine</see> class. 
+		// </summary>
+		// <param name="fsm">FA object</param>
+		// <param name="character">Character that demands this FSM based on fsm param</param>
+		// <remarks>FSM_Manager uses this method to initialize a machine</remarks>
+		public FSM_Machine(FA_Classic fsm, System.Object character){
 		Character 		= character;
 		FSM 			= fsm;
 
@@ -96,7 +96,7 @@ public class FSM_Machine {
 		EnabledStates 	= new List<State>();
 			
 		//Concurrent
-		if(FSM.getTag() == (int)GAIA.FA_Classic.FAType.CONCURRENT_STATES) {
+		if(FSM.getTag() == (int)FA_Classic.FAType.CONCURRENT) {
 
 			MaxEnabled = (FSM as FA_Concurrent_States).getMaxConcurrent();
 			for(int i = 0; i<(FSM as FA_Concurrent_States).getMaxConcurrent(); i++){
@@ -123,7 +123,10 @@ public class FSM_Machine {
 		rnd 			= new System.Random();
 		UpdateEnabled 	= false;
 		inertialTimer 	= new Stopwatch();
-	}
+
+		EventsRoutine = Character.GetType().GetMethod(FSM.getCallback(), BindingFlags.Instance | BindingFlags.NonPublic | BindingFlags.Public);
+
+		}
 
 		#region GET methods
 		// <summary>
@@ -157,19 +160,18 @@ public class FSM_Machine {
     // </summary>
     // <returns>A List of integer value actions to do</returns>
     // <remarks></remarks>
-	public List<int> UpdateFSM() {
+	public List<int> Update() {
 
 		//List of actions is cleared to return another filled one.
 		DoActions.Clear();
-						
+
 		//Copy of enabled States
-		EnabledStatesCopy = EnabledStates.ToList();
+		List<State> EnabledStatesCopy = EnabledStates.ToList();
 		
 		//Executed states in currentCycle
 		List<State> onCycle = new List<State>();
 
 		//Routine for this FSM_Machine
-		MethodInfo EventsRoutine = Character.GetType().GetMethod(FSM.getCallback(), BindingFlags.Instance |BindingFlags.NonPublic | BindingFlags.Public);
 		List<int> Events = (List<int>) EventsRoutine.Invoke(Character, null);
 
 		//Counter in next foreach
@@ -196,9 +198,7 @@ public class FSM_Machine {
 		
 			//According to FSM TAG, FSM_Machine works in one way or another 
 			switch(FSM.getTag()){
-			
-
-			case (int)GAIA.FA_Classic.FAType.CLASSIC:	//PROBABILISTIC LOGIC
+			case (int)FA_Classic.FAType.CLASSIC:		//PROBABILISTIC LOGIC
 				#region Classic machine logic
 
 				#region Classic selection
@@ -246,13 +246,13 @@ public class FSM_Machine {
 					//Exist submachine
 					if(t_aux.getFinal().getSubFA()!=null){
 
-						DoActions.Add(CurrentState.getOutAction()); 								//Out action of currentState
-						DoActions.Add(t_aux.getAction());											//Action of transition of triggered transition
-						SuperiorStack[es].Push(t_aux.getFinal()); 									//Push currentState in superiorStack
-						FSM_Stack[es].Push(t_aux.getFinal().getSubFA());						//Push current FSM in FSM_Stack
+						DoActions.Add(CurrentState.getOutAction()); 		//Out action of currentState
+						DoActions.Add(t_aux.getAction());					//Action of transition of triggered transition
+						SuperiorStack[es].Push(t_aux.getFinal()); 			//Push currentState in superiorStack
+						FSM_Stack[es].Push(t_aux.getFinal().getSubFA());	//Push current FSM in FSM_Stack
 
 						//Do something if FSM is Concurrent_States
-						if(t_aux.getFinal().getSubFA().getTag()== (int)GAIA.FA_Classic.FAType.CONCURRENT_STATES)
+						if(t_aux.getFinal().getSubFA().getTag()== (int)GAIA.FA_Classic.FAType.CONCURRENT)
 								{
 							foreach	(State sta in (t_aux.getFinal().getSubFA() as FA_Concurrent_States).getInitials()){
 								DoActions.Add(sta.getInAction());
@@ -288,7 +288,7 @@ public class FSM_Machine {
 				t_aux = null;
 				#endregion
 				break;
-			case (int)GAIA.FA_Classic.FAType.INERTIAL:			//INERTIAL LOGIC
+			case (int)FA_Classic.FAType.INERTIAL:		//INERTIAL LOGIC
 				#region Inertial machine logic		
 	
 				//Check if the last event is the same that the new one. If not, FSM has to reset its timer.
@@ -351,7 +351,7 @@ public class FSM_Machine {
 							SuperiorStack[es].Push(t_aux.getFinal()); 										//Push currentState in superiorStack
 							FSM_Stack[es].Push(t_aux.getFinal().getSubFA());							//Push current FSM in FSM_Stack
 							//For Concurrent States
-							if(t_aux.getFinal().getSubFA().getTag()== (int)GAIA.FA_Classic.FAType.CONCURRENT_STATES)
+							if(t_aux.getFinal().getSubFA().getTag()== (int)GAIA.FA_Classic.FAType.CONCURRENT)
 									{
 								foreach	(State sta in (t_aux.getFinal().getSubFA() as FA_Concurrent_States).getInitials()){
 									DoActions.Add(sta.getInAction());
@@ -402,7 +402,7 @@ public class FSM_Machine {
 				t_aux = null;			
 				#endregion
 				break;
-			case (int)GAIA.FA_Classic.FAType.STACK_BASED: //TO THIS FSM, IT IS NECESSARY THAT EVERY STATE HAS A TRANSITION TO ITSELF****************
+			case (int)FA_Classic.FAType.STACK_BASED:	//TO THIS FSM, IT IS NECESSARY THAT EVERY STATE HAS A TRANSITION TO ITSELF****************
 				#region Stack-based machine logic 
 
 				#region Stack-based selection
@@ -458,7 +458,7 @@ public class FSM_Machine {
 							SuperiorStack[es].Push(t_aux.getFinal()); 											//Push currentState in superiorStack
 							FSM_Stack[es].Push(t_aux.getFinal().getSubFA());							//Push current FSM in FSM_Stack
 
-							if(t_aux.getFinal().getSubFA().getTag()== (int)GAIA.FA_Classic.FAType.CONCURRENT_STATES)
+							if(t_aux.getFinal().getSubFA().getTag()== (int)GAIA.FA_Classic.FAType.CONCURRENT)
 									{
 								foreach	(State sta in (t_aux.getFinal().getSubFA() as FA_Concurrent_States).getInitials()){
 									DoActions.Add(sta.getInAction());
@@ -488,7 +488,7 @@ public class FSM_Machine {
 							FSM_Stack[es].Push(t_aux.getFinal().getSubFA());						//Push current FSM in FSM_Stack
 
 							//For concurrent_states
-							if(t_aux.getFinal().getSubFA().getTag()== (int)GAIA.FA_Classic.FAType.CONCURRENT_STATES)
+							if(t_aux.getFinal().getSubFA().getTag()== (int)GAIA.FA_Classic.FAType.CONCURRENT)
 									{
 								foreach	(State sta in (t_aux.getFinal().getSubFA() as FA_Concurrent_States).getInitials()){
 									DoActions.Add(sta.getInAction());
@@ -545,7 +545,7 @@ public class FSM_Machine {
 				#endregion
 				break;
 				//...///
-			case (int)GAIA.FA_Classic.FAType.CONCURRENT_STATES:
+			case (int)FA_Classic.FAType.CONCURRENT:
 				#region Concurrent-states machine logic
 					
 				//Foreach of events (this FSM_Machine allows to check more than one)
@@ -615,7 +615,7 @@ public class FSM_Machine {
 										StatesCredits[t_aux.getFinal().getTag()] = StatesCredits[t_aux.getFinal().getTag()] + 1;			//CurrentState WINS one credit
 
 										//For concurrent_states
-										if(t_aux.getFinal().getSubFA().getTag()== (int)GAIA.FA_Classic.FAType.CONCURRENT_STATES)
+										if(t_aux.getFinal().getSubFA().getTag()== (int)GAIA.FA_Classic.FAType.CONCURRENT)
 												{
 											foreach	(State sta in (t_aux.getFinal().getSubFA() as FA_Concurrent_States).getInitials()){
 												DoActions.Add(sta.getInAction());

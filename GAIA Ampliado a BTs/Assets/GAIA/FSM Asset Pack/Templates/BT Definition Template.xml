@@ -4,7 +4,7 @@
 	<BTid> <!--ID OF THE BT HERE--></BTid>
 	<Bt>
 		<Trees>
-      <Tree Root="YES"><!--ROOT ATTRIBUTE DETERMINES WHETHER THE TREE IS THE ROOT OF THE BT OR NOT-->
+      <Tree Root="YES"><!--ROOT ATTRIBUTE DETERMINES WHETHER THIS TREE IS THE ROOT OF THE BT OR NOT-->
 				<Name><!--NAME OF THE TREE HERE--></Name>
         <Child_Nodes>
 					<CN>

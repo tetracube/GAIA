@@ -28,9 +28,9 @@ namespace GAIA{
         // <param name="FlagProbability">If set to <see langword="true"/>, then, it is a probabilistic FA_Classic ; otherwise, it is a deterministic FA_Concurrent_States</param>
         // <remarks></remarks>
 	    public FA_Concurrent_States(string ID, int tag, int num, string CallbackName, bool FlagProbability) : base(ID, tag, CallbackName, FlagProbability) {
-		    this.ID = ID;
-		    FAtype = FAType.CONCURRENT_STATES;
-		    FA_tag = tag;
+		    name = ID;
+		    FAtype = FAType.CONCURRENT;
+		    FAId = tag;
 		    n_MAX_Concurrent = num;
 		    this.CallbackName = CallbackName;
 		    initiallyEnabled = new List<State>();
@@ -47,10 +47,9 @@ namespace GAIA{
 
 		    foreach(State st in StatesList){
 			    if(st.initial){
-				    existInitial = true;
 				    initiallyEnabled.Add(st);
-				    //initial = st;
-				    positionInGraph = StatesList.IndexOf(st);
+				    initial = st;
+				    stateIndex = StatesList.IndexOf(st);
 			    }
 
 			    //add to a dictionary of credits

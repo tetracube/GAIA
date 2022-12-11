@@ -24,30 +24,13 @@ namespace GAIA
     // Manager of FSMs and BTs
     public class GAIA_Manager
     {
-
-
         //GAIA_Manager Class Attributes
         // An instance of an GAIA_Parser (filled with GAIA_Manager(parser) constructor.
-        xmltest.GAIA_Parser parser;
+        GAIAXML.GAIA_Parser parser;
         //Dictionary to add a finite automata with FAtype + FAid (Tuple) and the FA itself
         Dictionary<Tuple, FA_Classic> FSM_dic;
         //Dictionary to add a behaviour tree with the BT definition file name and its contents
         Dictionary<string, string> BT_dic;
-
-        // Initializes a new instance of the GAIA_Manager class with an instance of GAIA_Parser.
-        public GAIA_Manager(xmltest.GAIA_Parser parser)
-        {
-            this.parser = parser;
-            FSM_dic = new Dictionary<Tuple, FA_Classic>();
-            BT_dic = new Dictionary<string, string>();
-        }
-
-        // Initializes a new instance of the GAIA_Manager class.
-        public GAIA_Manager()
-        {
-            FSM_dic = new Dictionary<Tuple, FA_Classic>();
-            BT_dic = new Dictionary<string, string>();
-        }
 
         //Struct that allows to add a Finite automata with type+ID
         public struct Tuple
@@ -58,8 +41,23 @@ namespace GAIA
             public Tuple(int FSMtype, string FSMid)
             {
                 this.FSMtype = FSMtype;
-                this.FSMid = FSMid;
+                this.FSMid   = FSMid;
             }
+        }
+
+        // Initializes a new instance of the GAIA_Manager class with an instance of GAIA_Parser.
+        public GAIA_Manager(GAIAXML.GAIA_Parser parser)
+        {
+            this.parser = parser;
+            FSM_dic = new Dictionary<Tuple, FA_Classic>();
+            BT_dic  = new Dictionary<string, string>();
+        }
+
+        // Initializes a new instance of the GAIA_Manager class.
+        public GAIA_Manager()
+        {
+            FSM_dic = new Dictionary<Tuple, FA_Classic>();
+            BT_dic  = new Dictionary<string, string>();
         }
 
         // Add a machine (passed as FA parameter) to this GAIA_Manager
@@ -118,11 +116,11 @@ namespace GAIA
             }
             else
             {
-                if(content != null)
+                if(null != content)
                 { //Invoke parser with string
                     parsedbt = parser.ParseBT(content);
                 }
-                if (parsedbt != null)
+                if (null != parsedbt)
                 {
                     try
                     {
@@ -200,27 +198,13 @@ namespace GAIA
         //                      2: Tick manually
         //                      3: Tick on FixedUpdate
         //                      4: Tick on LateUpdate
-        public void createBT(GameObject character, string bt_id, int updateType)
+        public void createBT(GameObject character, string bt_id, PandaBehaviour.UpdateOrder updateType)
         {
             try
             {
                 PandaBehaviour component = character.AddComponent<PandaBehaviour>();
                 component.Compile(BT_dic[bt_id]);
-                switch (updateType)
-                {
-                    case 1:
-                        component.tickOn = PandaBehaviour.UpdateOrder.Update;
-                        break;
-                    case 2:
-                        component.tickOn = PandaBehaviour.UpdateOrder.Manual;
-                        break;
-                    case 3:
-                        component.tickOn = PandaBehaviour.UpdateOrder.FixedUpdate;
-                        break;
-                    case 4:
-                        component.tickOn = PandaBehaviour.UpdateOrder.LateUpdate;
-                        break;
-                }
+                component.tickOn = updateType;
             }
             catch (Exception e)
             {
@@ -268,26 +252,12 @@ namespace GAIA
         //                      2: Tick manually
         //                      3: Tick on FixedUpdate
         //                      4: Tick on LateUpdate
-        public void changeTickOn(GameObject character, int updateType)
+        public void changeTickOn(GameObject character, PandaBehaviour.UpdateOrder updateType)
         {
             try
             {
                 PandaBehaviour component = character.GetComponent<PandaBehaviour>();
-                switch (updateType)
-                {
-                    case 1:
-                        component.tickOn = PandaBehaviour.UpdateOrder.Update;
-                        break;
-                    case 2:
-                        component.tickOn = PandaBehaviour.UpdateOrder.Manual;
-                        break;
-                    case 3:
-                        component.tickOn = PandaBehaviour.UpdateOrder.FixedUpdate;
-                        break;
-                    case 4:
-                        component.tickOn = PandaBehaviour.UpdateOrder.LateUpdate;
-                        break;
-                }
+                component.tickOn = updateType;
             }
             catch (Exception e)
             {

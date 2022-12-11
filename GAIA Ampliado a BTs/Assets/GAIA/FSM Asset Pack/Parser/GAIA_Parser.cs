@@ -10,7 +10,7 @@ using GAIA;
 using System.Runtime.CompilerServices;
 
 // Namespace that includes GAIA_Parser device to create xml data graph
-namespace xmltest
+namespace GAIAXML
 {
 	
     // Device that allows to extract data from xml documents that contains FSM design
@@ -24,26 +24,30 @@ namespace xmltest
 
 		//Xml document instance to load one in memory
 		XmlDocument xDoc;
-		XmlDocument xDocBT;
+
         //Parsing Log file
         System.IO.StreamWriter file;
-        // Lines to write in log file
-		string LogLines;
+        
+		// Content of the log file before writing it to the disk
+		string	LogLines,
 		// String where the BT is defined for the Panda component
-		string parsedBTtext;
-        //Number of found errors in the FSM parsing process
-		int numErrors;
+		//The result of translating the XML GAIA file into a Panda-like string to parse it by the Panda Asset
+				parsedBTtext;
+        
+		//Number of found errors in the FSM parsing process
+		int numErrors,
 		//Number of found errors in the BT parsing process
-		int numErrorsBT;
-		//Number of Loaded FSM
-		int LoadedMachines;
-        //Number of Loaded subFSM
-        int LoadedSubMachines;
-		//Number of Loaded BTs
-		int LoadedBTs;
-		//Number of Trees Loaded in a BT
-		int treesAdded;
-		//Auxiliar State used internally to control hierarchy
+			numErrorsBT;
+		
+		//Amount of Loaded FSM
+		int LoadedMachines,
+			//Amount of Loaded subFSM
+			LoadedSubMachines,
+			//Amount of Loaded BTs
+			LoadedBTs,
+		//Amount of Trees Loaded in a BT
+			treesAdded;
+		//Auxiliar State used internally to control hierarchy while parsing FSM
 		State aux;
 
 
@@ -82,7 +86,7 @@ namespace xmltest
 
 			numErrors=0;
 			//numWarnings=0;
-			int prob = 0;
+			double prob = Transition.IMPOSSIBLE_EVENT;
 
 			xDoc = new XmlDocument();
 			try{
@@ -216,7 +220,7 @@ namespace xmltest
 				//***MACHINE TYPE SWITCH***
 				LogLines += "\r\n \r\n=============================================================================================";
 
-				FA_Classic.FAType FAtype = FA_Classic.string2Tag(FSMtype);
+				FA_Classic.FAType FAtype = Tags.name2Tag<FA_Classic.FAType>(FSMtype);
 
 				switch (FAtype) {
 				case FA_Classic.FAType.CLASSIC:
@@ -256,9 +260,9 @@ namespace xmltest
 							//addState(new State(string name, string initial, int tag, int action, int in_action, int out_action))
 							aux = new State(stateName, 
 											initialState.Equals("YES"),
-											(int)Tags.actionName2Tag(actionName), 
-											(int)Tags.actionName2Tag(inActionName), 
-											(int)Tags.actionName2Tag(outActionName)
+											(int)Tags.name2Tag<Tags.ActionTags>(actionName), 
+											(int)Tags.name2Tag<Tags.ActionTags>(inActionName), 
+											(int)Tags.name2Tag<Tags.ActionTags>(outActionName)
 										);
 							if (fsm_p.addState(aux))
 							{
@@ -307,15 +311,16 @@ namespace xmltest
 
 						if(FlagProbabilistic){
 							try{
-								prob = Convert.ToInt32(getName(transitionFields, (int)TransitionFields.PROBABILITY));
-								if(prob<0){
+								prob = Convert.ToDouble(getName(transitionFields, (int)TransitionFields.PROBABILITY));
+								if (prob<Transition.IMPOSSIBLE_EVENT){
 									numErrors++;
-									prob = 0; //default 100%
+									prob = Transition.IMPOSSIBLE_EVENT; //default 0%
 									LogLines += "\r\n>>ERROR. Transition probability with origin: "+A.getID()+" and destination: "+B.getID()+". Negative value. Set to default value (0%).";
 								}
 							}catch(Exception){
+
 								numErrors++;
-								prob = 100; //default 100%
+								prob = Transition.SURE_EVENT; //default 100%
 								LogLines += "\r\n>>ERROR. Transition probability with origin: "+A.getID()+" and destination: "+B.getID()+". NaN. Set to default value (100%).";
 								
 							}
@@ -323,7 +328,7 @@ namespace xmltest
 
 						//Add a new transition with ID between the states A and B (always that both are in the graph or ID != "")
 						if(A!=null && B!=null){
-							int T_action		= (int)Tags.actionName2Tag(getName(transitionFields, (int)TransitionFields.ACTION));
+							int T_action		= (int)Tags.name2Tag<Tags.ActionTags>(getName(transitionFields, (int)TransitionFields.ACTION));
 							XmlNodeList events	= transitionFields.Item((int)TransitionFields.EVENTS).ChildNodes;
 							
 							//Transition's EventsList 
@@ -331,7 +336,7 @@ namespace xmltest
 							foreach(XmlNode n in events){
 								String eventName = n.ChildNodes.Item(0).InnerText;
 								EventsList.Add(new Event(eventName,								//Event name
-														 (int)Tags.eventName2Tag(eventName),	//Event id
+														 (int)Tags.name2Tag<Tags.EventTags>(eventName),	//Event id
 														 n.ChildNodes.Item(1).InnerText));		//Type of event
 							}
 							Transition newT;
@@ -373,7 +378,7 @@ namespace xmltest
 					if (numErrors>0){
 						LogLines += "\r\n \r\n(Parsing of " + FSMtype + " Machine named '"+FSMid+"' is INCONSISTENT)";
 					} else {
-						if (!fsm_p.ExistInitial ()) {
+						if (!fsm_p.existInitial ()) {
 							LogLines += "\r\n>>ERROR. There is not an initial state. Check XML file\r\n (Parsing of " + FSMtype + " Machine named '"+FSMid+"' is INCONSISTENT)";
 							numErrors++;
 						} else
@@ -384,7 +389,7 @@ namespace xmltest
 					LoadedMachines++;
 					return fsm_p;
 					#endregion
-				case FA_Classic.FAType.CONCURRENT_STATES:
+				case FA_Classic.FAType.CONCURRENT:
 					#region CONCURRENT-STATES FSM
 					if(subFSM){
 						LogLines += "\r\n...LOADING A (SUB)CONCURRENT-STATES MACHINE named '"+FSMid+"' to current STATE";
@@ -429,10 +434,10 @@ namespace xmltest
 							}
 							aux = new State(stateFields.Item (0).InnerText, 
 											statesList.Item (i).Attributes.Item (0).InnerText.Equals("YES"), 
-											(int)Tags.stateName2Tag(stateFields.Item (0).InnerText), 
-											(int)Tags.actionName2Tag(stateFields.Item (1).InnerText), 
-											(int)Tags.actionName2Tag(statesList.Item (i).ChildNodes.Item (2).InnerText), 
-											(int)Tags.actionName2Tag(statesList.Item (i).ChildNodes.Item (3).InnerText), credits);
+											(int)Tags.name2Tag<Tags.StateTags>(stateFields.Item (0).InnerText), 
+											(int)Tags.name2Tag<Tags.ActionTags>(stateFields.Item (1).InnerText), 
+											(int)Tags.name2Tag<Tags.ActionTags>(statesList.Item (i).ChildNodes.Item (2).InnerText), 
+											(int)Tags.name2Tag<Tags.ActionTags>(statesList.Item (i).ChildNodes.Item (3).InnerText), credits);
 							if (fsm_cs.addState(aux)) {
 								LogLines += "\r\n>>ADDED STATE '" + stateFields.Item(0).InnerText + "'.";
 								#region check possible submachine
@@ -483,21 +488,20 @@ namespace xmltest
 								numErrors++;
 								prob = 100; //default 100%
 								LogLines += "\r\n>>ERROR. Transition probability with origin: "+A.getID()+" and destination: "+B.getID()+". NaN. Set to default value (100%).";
-								
 							}
 						}
 						//Add a new transition with ID between the states A and B (always that both are in the graph or ID != "")
 						if(A!=null && B!=null){
 
 							string T_ID 	= transitionFields.Item (0).InnerText;
-							int T_tag	= (int)Tags.transitionName2Tag(transitionFields.Item (0).InnerText);
-							int T_action = (int)Tags.actionName2Tag(transitionFields.Item (3).InnerText);
+							int T_tag	= (int)Tags.name2Tag<Tags.TransitionTags>(transitionFields.Item (0).InnerText);
+							int T_action = (int)Tags.name2Tag<Tags.TransitionTags>(transitionFields.Item (3).InnerText);
 							XmlNodeList events = transitionFields.Item(4).ChildNodes;
 							
 							//Transition's EventsList 
 							List<Event> EventsList = new List<Event>();
 							foreach(XmlNode n in events){
-								EventsList.Add(new Event(n.ChildNodes.Item(0).InnerText, (int)Tags.eventName2Tag(n.ChildNodes.Item(0).InnerText), n.ChildNodes.Item(1).InnerText));
+								EventsList.Add(new Event(n.ChildNodes.Item(0).InnerText, (int)Tags.name2Tag<Tags.EventTags>(n.ChildNodes.Item(0).InnerText), n.ChildNodes.Item(1).InnerText));
 							}
 							
 							Transition newT;
@@ -539,7 +543,7 @@ namespace xmltest
 					if (numErrors>0){
 						LogLines += "\r\n \r\n(Parsing of " + FSMtype + " Machine named '"+FSMid+"' is INCONSISTENT)";
 					} else {
-						if (!fsm_cs.ExistInitial ()) {
+						if (!fsm_cs.existInitial ()) {
 							LogLines += "\r\n>>ERROR. There is not an initial state. Check XML file\r\n (Parsing of " + FSMtype + " Machine named '"+FSMid+"' is INCONSISTENT)";
 							numErrors++;
 						} else if(fsm_cs.getInitials().Count > fsm_cs.getMaxConcurrent()){
@@ -582,7 +586,7 @@ namespace xmltest
 						}
 						//Add a new State with latency
 						if (statesList.Item (i).ChildNodes.Item (0).InnerText.Trim ().Length != 0 && statesList.Item (i).Attributes.Item (0).InnerText.Trim ().Length != 0 && statesList.Item (i).ChildNodes.Item (1).InnerText.Trim ().Length != 0) {
-							aux = new State (statesList.Item (i).ChildNodes.Item (0).InnerText, statesList.Item (i).Attributes.Item (0).InnerText.Equals("YES"), (int)Tags.actionName2Tag(statesList.Item (i).ChildNodes.Item (1).InnerText), (int)Tags.actionName2Tag(statesList.Item (i).ChildNodes.Item (2).InnerText), (int)Tags.actionName2Tag(statesList.Item (i).ChildNodes.Item (3).InnerText), lat);
+							aux = new State (statesList.Item (i).ChildNodes.Item (0).InnerText, statesList.Item (i).Attributes.Item (0).InnerText.Equals("YES"), (int)Tags.name2Tag<Tags.ActionTags>(statesList.Item (i).ChildNodes.Item (1).InnerText), (int)Tags.name2Tag<Tags.ActionTags>(statesList.Item (i).ChildNodes.Item (2).InnerText), (int)Tags.name2Tag<Tags.ActionTags>(statesList.Item (i).ChildNodes.Item (3).InnerText), lat);
 							if (fsm_i.addState(aux)) {
 								LogLines += "\r\n>>ADDED STATE '" + statesList.Item(i).ChildNodes.Item(0).InnerText + "'.";
 								#region check possible submachine
@@ -644,14 +648,14 @@ namespace xmltest
 						if(A!=null && B!=null){
 							
 							string T_ID 	= transitionsList.Item (i).ChildNodes.Item (0).InnerText;
-							int T_tag	= (int)Tags.transitionName2Tag(transitionsList.Item (i).ChildNodes.Item (0).InnerText);
-							int T_action = (int)Tags.actionName2Tag(transitionsList.Item (i).ChildNodes.Item (3).InnerText);
+							int T_tag	= (int)Tags.name2Tag<Tags.TransitionTags>(transitionsList.Item (i).ChildNodes.Item (0).InnerText);
+							int T_action = (int)Tags.name2Tag<Tags.TransitionTags>(transitionsList.Item (i).ChildNodes.Item (3).InnerText);
 							XmlNodeList events = transitionsList.Item(i).ChildNodes.Item(4).ChildNodes;
 							
 							//Transition's EventsList 
 							List<Event> EventsList = new List<Event>();
 							foreach(XmlNode n in events){
-								EventsList.Add(new Event(n.ChildNodes.Item(0).InnerText, (int)Tags.eventName2Tag(n.ChildNodes.Item(0).InnerText), n.ChildNodes.Item(1).InnerText));
+								EventsList.Add(new Event(n.ChildNodes.Item(0).InnerText, (int)Tags.name2Tag<Tags.EventTags>(n.ChildNodes.Item(0).InnerText), n.ChildNodes.Item(1).InnerText));
 							}
 							
 							Transition newT;
@@ -692,7 +696,7 @@ namespace xmltest
 					if (numErrors>0){
 						LogLines += "\r\n \r\n(Parsing of " + FSMtype + " Machine named '"+FSMid+"' is INCONSISTENT)";
 					} else {
-						if (!fsm_i.ExistInitial ()) {
+						if (!fsm_i.existInitial ()) {
 							LogLines += "\r\n>>ERROR: There is not an initial state. Check XML file\r\n (Parsing of " + FSMtype + " Machine named '"+FSMid+"' is INCONSISTENT)";
 							numErrors++;
 						} else
@@ -725,7 +729,7 @@ namespace xmltest
 						}
 						//Add a new State
 						if (statesList.Item (i).ChildNodes.Item (0).InnerText.Trim ().Length != 0 && statesList.Item (i).Attributes.Item (0).InnerText.Trim ().Length != 0 && statesList.Item (i).ChildNodes.Item (1).InnerText.Trim ().Length != 0) {
-							aux = new State (statesList.Item (i).ChildNodes.Item (0).InnerText, statesList.Item (i).Attributes.Item (0).InnerText.Equals("YES"), (int)Tags.actionName2Tag(statesList.Item (i).ChildNodes.Item (1).InnerText), (int)Tags.actionName2Tag(statesList.Item (i).ChildNodes.Item (2).InnerText), (int)Tags.actionName2Tag(statesList.Item (i).ChildNodes.Item (3).InnerText), pri);
+							aux = new State (statesList.Item (i).ChildNodes.Item (0).InnerText, statesList.Item (i).Attributes.Item (0).InnerText.Equals("YES"), (int)Tags.name2Tag<Tags.ActionTags>(statesList.Item (i).ChildNodes.Item (1).InnerText), (int)Tags.name2Tag<Tags.ActionTags>(statesList.Item (i).ChildNodes.Item (2).InnerText), (int)Tags.name2Tag<Tags.ActionTags>(statesList.Item (i).ChildNodes.Item (3).InnerText), pri);
 							if (fsm_s.addState(aux)) {
 								LogLines += "\r\n>>ADDED STATE '" + statesList.Item(i).ChildNodes.Item(0).InnerText + "'.";
 								#region check possible submachine
@@ -786,15 +790,15 @@ namespace xmltest
 							if (A != null && B != null)
 							{
 								string T_ID = transitionsList.Item(i).ChildNodes.Item(0).InnerText;
-								int T_tag = (int)Tags.transitionName2Tag(transitionsList.Item(i).ChildNodes.Item(0).InnerText);
-								int T_action = (int)Tags.actionName2Tag(transitionsList.Item(i).ChildNodes.Item(3).InnerText);
+								int T_tag = (int)Tags.name2Tag<Tags.TransitionTags>(transitionsList.Item(i).ChildNodes.Item(0).InnerText);
+								int T_action = (int)Tags.name2Tag<Tags.ActionTags>(transitionsList.Item(i).ChildNodes.Item(3).InnerText);
 								XmlNodeList events = transitionsList.Item(i).ChildNodes.Item(4).ChildNodes;
 
 								//Transition's EventsList 
 								List<Event> EventsList = new List<Event>();
 								foreach (XmlNode n in events)
 								{
-									EventsList.Add(new Event(n.ChildNodes.Item(0).InnerText, (int)Tags.eventName2Tag(n.ChildNodes.Item(0).InnerText), n.ChildNodes.Item(1).InnerText));
+									EventsList.Add(new Event(n.ChildNodes.Item(0).InnerText, (int)Tags.name2Tag<Tags.EventTags>(n.ChildNodes.Item(0).InnerText), n.ChildNodes.Item(1).InnerText));
 								}
 
 								Transition newT;
@@ -836,7 +840,7 @@ namespace xmltest
 					if (numErrors>0){
 						LogLines += "\r\n \r\n(Parsing of " + FSMtype + " Machine named '"+FSMid+"' is INCONSISTENT)";
 					} else {
-						if (!fsm_s.ExistInitial ()) {
+						if (!fsm_s.existInitial ()) {
 							LogLines += "\r\n>>ERROR. There is not an initial state. Check XML file\r\n (Parsing of " + FSMtype + " Machine named '"+FSMid+"' is INCONSISTENT)";
 							numErrors++;
 						} else
@@ -953,11 +957,11 @@ namespace xmltest
 
 			numErrorsBT = 0;
 
-			xDocBT = new XmlDocument();
+			xDoc = new XmlDocument();
 			try
 			{
-				//xDocBT.Load(content);   // It is used to load XML either from a stream, TextReader, path/URL, or XmlReader
-				xDocBT.LoadXml(content); //  It is used to load the XML contained within a string.
+				//xDoc.Load(content);   // It is used to load XML either from a stream, TextReader, path/URL, or XmlReader
+				xDoc.LoadXml(content); //  It is used to load the XML contained within a string.
 			}
 			catch (FileNotFoundException)
 			{
@@ -969,7 +973,7 @@ namespace xmltest
 			bool startParseFlagBT = true;
 
 			//Extract the trees and put them into a List "Trees"
-			Trees = xDocBT.GetElementsByTagName("Trees");
+			Trees = xDoc.GetElementsByTagName("Trees");
 			if (Trees != null)
 			{
 				if (Trees.Count != 0)
@@ -992,9 +996,9 @@ namespace xmltest
 			try
 			{
 				//Extract the id of the BT
-				if (xDocBT.GetElementsByTagName("BTid").Item(0).InnerText.Trim().Length != 0)
+				if (xDoc.GetElementsByTagName("BTid").Item(0).InnerText.Trim().Length != 0)
 				{
-					BTid = xDocBT.GetElementsByTagName("BTid").Item(0).InnerText;
+					BTid = xDoc.GetElementsByTagName("BTid").Item(0).InnerText;
 				}
 				else
 				{

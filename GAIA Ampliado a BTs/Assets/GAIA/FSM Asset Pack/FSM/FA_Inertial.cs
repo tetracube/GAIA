@@ -18,9 +18,9 @@ public class FA_Inertial : FA_Classic {
     // <param name="FlagProbabilistic">If set to <see langword="true"/>, then, it is a probabilistic FA_Inertial ; otherwise, it is a deterministic FA_Inertial </param>
     // <remarks></remarks>
 	public FA_Inertial(string ID, int tag, string CallbackName, bool FlagProbability) : base(ID, tag, CallbackName, FlagProbability) {
-		this.ID = ID;
+		name = ID;
 		FAtype = FAType.INERTIAL;
-		FA_tag = tag;
+		FAId = tag;
 		this.CallbackName = CallbackName;
 	}
 	
@@ -35,9 +35,8 @@ public class FA_Inertial : FA_Classic {
         {
             if (st.initial)
             {
-                existInitial = true;
                 initial = st;
-                positionInGraph = StatesList.IndexOf(st);
+                stateIndex = StatesList.IndexOf(st);
             }
             if (st.getSubFA() != null)
             {

@@ -18,9 +18,9 @@ namespace GAIA{
         // <param name="FlagProbabilistic">If set to <see langword="true"/>, then, it is a probabilistic FA_Stack ; otherwise, it is a deterministic FA_Stack</param>
         // <remarks></remarks>
 	    public FA_Stack(string ID, int tag, string CallbackName, bool FlagProbability) : base(ID, tag, CallbackName, FlagProbability) {
-		    this.ID = ID;
+		    name = ID;
 		    FAtype = FAType.STACK_BASED;
-		    FA_tag = tag;
+		    FAId = tag;
 		    this.CallbackName = CallbackName;
 	    }
 	
@@ -31,9 +31,8 @@ namespace GAIA{
 	    public override void Start(){
 		    foreach(State st in StatesList){
 			    if(st.initial){
-				    existInitial = true;
 				    initial = st;
-				    positionInGraph = StatesList.IndexOf(st);	
+				    stateIndex = StatesList.IndexOf(st);	
 			    }
 			    //st.setEnabledBy(EnableByEvents(st));
 			    if(st.getSubFA()!=null){

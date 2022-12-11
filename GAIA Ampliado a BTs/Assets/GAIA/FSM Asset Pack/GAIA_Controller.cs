@@ -38,7 +38,7 @@ public class GAIA_Controller : MonoBehaviour
 	void Awake () 
     {
         //Creation of a new xmltest.GAIA_Parser
-        xmltest.GAIA_Parser parser = new xmltest.GAIA_Parser();
+        GAIAXML.GAIA_Parser parser = new GAIAXML.GAIA_Parser();
 
         //Creation of a new Manager (with a GAIA_Parser)
         m_manager = new GAIA_Manager(parser);

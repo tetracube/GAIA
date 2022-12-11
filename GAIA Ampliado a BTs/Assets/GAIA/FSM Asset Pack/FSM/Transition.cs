@@ -9,12 +9,16 @@ namespace GAIA{
     // <remarks></remarks>
 public class Transition {
 
-	//Transition Class attributes
+    //Probability constants
+    public const double SURE_EVENT       = 1.0,
+                        IMPOSSIBLE_EVENT = 0.0;
+
+    //Transition Class attributes
 
     // <summary>Name that identifies this transition</summary>
     string transitionName;
     // <summary>Transition tag identifier</summary>
-	int transition,
+	int transitionId,
     // <summary>Action tag identifier of this transition</summary>
         action;
 
@@ -25,7 +29,7 @@ public class Transition {
     // <summary>Collection of events that enable this transition</summary>
 	List<Event> EventsList;
     //<summary>Probability of execution of this transition. Only used if the FA is probabilistic </summary>
-	double? probability; 
+	double probability = SURE_EVENT; 
 	
 	
     // <summary>
@@ -42,10 +46,11 @@ public class Transition {
 		transitionName = ID;
 		origin = A;
 		final = B;
-		transition = (int)Tags.transitionName2Tag(transitionName);
+		transitionId = (int)Tags.name2Tag<Tags.TransitionTags>(transitionName);
 		action = action_tag;
 		this.EventsList = EventsList;
 	}
+
     // <summary>
     // Initializes a new instance of the <see cref="T:FSM.Transition">Transition</see> class. 
     // </summary>
@@ -57,21 +62,46 @@ public class Transition {
     // <param name="EventsList">List of events that enable this transition</param>
     // <param name="probability">Probability between 0 and 100. Only used if the FA is probabilistic</param>
     // <remarks>It only can be used if FA is probabilistic. Its use does not make sense in the other FA</remarks>
-	public Transition(string ID, State A, State B, int action_tag,  List<Event> EventsList, int probability){
+	public Transition(string ID, State A, State B, int action_tag,  List<Event> EventsList, double probability){
 		transitionName = ID;
 		origin = A;
 		final = B;
-		transition = (int)Tags.transitionName2Tag(transitionName);
+		transitionId = (int)Tags.name2Tag<Tags.TransitionTags>(transitionName);
 		action = action_tag;
 		this.EventsList = EventsList;
-		
-		//Probability cannot be neither higher than 100 nor negative
-		if(probability>100) this.probability = 100;
-		else if(probability<0) this.probability = 0;
-		else this.probability = probability;
+		this.probability = probability;
+        checkProbability();
 	}
 
-    #region GET methods
+    // <summary>
+    // Verifies if the probability is between low and high limits and it corrects it if exceeded
+    // </summary>
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public void checkProbability () {
+        //Probability cannot be neither higher than 1.0 nor negative
+        if (probability > SURE_EVENT)
+             probability = SURE_EVENT;
+        else if (probability < IMPOSSIBLE_EVENT) 
+                 probability = IMPOSSIBLE_EVENT; 
+    }
+
+    // <summary>
+    // Verifies if the probability is between low and high limits and it corrects it if exceeded
+    // </summary>
+    // <returns>The probability corrected and verified</returns>
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public double checkProbability(double prob)
+    {
+        //Probability cannot be neither higher than 1.0 nor negative
+        if (prob > SURE_EVENT)
+            prob = SURE_EVENT;
+        else if (prob < IMPOSSIBLE_EVENT)
+            prob = IMPOSSIBLE_EVENT;
+        
+        return prob;
+    }
+
+        #region GET methods
 
     // <summary>
     // Get transition's tag identifier
@@ -79,7 +109,7 @@ public class Transition {
     // <returns>transition's tag value</returns>
     // <remarks></remarks>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public int getTag() { return transition; }
+    public int getTag() { return transitionId; }
 
     // <summary>
     // Get transition's action tag identifier
@@ -104,7 +134,7 @@ public class Transition {
     // <returns>Double number</returns>
     // <remarks></remarks>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public double? getProbability() { if(probability!=null) return probability; else return 100; }
+    public double? getProbability() { if(probability!=null) return probability; else return SURE_EVENT; }
 
     // <summary>
     // Get the origin state of this transition
@@ -142,7 +172,7 @@ public class Transition {
     //</returns>
     // <remarks></remarks>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public bool setProbability(double newProbability) { if(null!=probability) { probability = newProbability; return true; } return false; }
+    public void setProbability(float newProbability) { probability = newProbability; }
 	
 	#endregion
 }

@@ -16,8 +16,10 @@ namespace GAIA{
         public const int NO_CREDITS  = -1;
 
         //State Class attributes
+        //<summary>State's name (string identifier)	 </summary>								
+        string stateName;
         //<summary>State tag identifier</summary>
-        int state,
+        int stateId,
         //<summary>Action tag identifier of this State</summary>
             action,
         //<summary>IN Action tag identifier of this State </summary>
@@ -26,10 +28,8 @@ namespace GAIA{
             out_action;
         //<summary>Flag that determines if this state is initial </summary>
         public bool initial { get; }
-        //<summary>State's name (string identifier)	 </summary>								
-	    string stateName;
 
-        //<summary>List of this state's transitions</summary>	
+        //<summary>List of this state's output transitions to other states</summary>	
 	    protected List<Transition> Transitions;
 
 	    //Class attributes for hierarchical aspect in FAs
@@ -64,7 +64,7 @@ namespace GAIA{
 		    stateName = ID;
 		    initial = FlagInitial;
 		    Transitions = new List<Transition>();
-            state = (int)Tags.stateName2Tag(stateName);
+            stateId = (int)Tags.name2Tag<Tags.StateTags>(stateName);
             action = action_tag;
 		    this.in_action = in_action_TAG;
 		    this.out_action = out_action_TAG;
@@ -86,7 +86,7 @@ namespace GAIA{
 		    stateName = ID;
 		    initial = FlagInitial;
 		    Transitions = new List<Transition>();
-		    state = (int)Tags.stateName2Tag(stateName);
+		    stateId = (int)Tags.name2Tag<Tags.StateTags>(stateName);
 		    action = action_tag;
 		    this.in_action = in_action_TAG;
 		    this.out_action = out_action_TAG;
@@ -108,7 +108,7 @@ namespace GAIA{
 		    stateName = ID;
 		    initial = FlagInitial;
 		    Transitions = new List<Transition>();
-		    state = (int)Tags.stateName2Tag(stateName);
+		    stateId = (int)Tags.name2Tag<Tags.StateTags>(stateName);
             action = action_tag;
 		    this.in_action = in_action_TAG;
 		    this.out_action = out_action_TAG;
@@ -130,7 +130,7 @@ namespace GAIA{
 		    stateName = ID;
 		    initial = FlagInitial;
 		    Transitions = new List<Transition>();
-		    state = state_tag;
+		    stateId = state_tag;
 		    action = action_tag;
 		    this.in_action = in_action_TAG;
 		    this.out_action = out_action_TAG;
@@ -185,7 +185,7 @@ namespace GAIA{
         // <returns>int value</returns>
         // <remarks></remarks>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public int getTag() { return state; }
+        public int getTag() { return stateId; }
 
         // <summary>
         // Get the ID that identifies this state

@@ -12,7 +12,7 @@ namespace GAIA{
 
         public enum EventType
         {
-            NULL, BASIC, STACKABLE, HIERARCHICAL, TotalEventTypes
+            NULL, BASIC, STACKABLE, HIERARCHICAL
         }
 
         // <summary>
@@ -32,7 +32,7 @@ namespace GAIA{
         //<summary>Identifier or name of this FSM_Event</summary>
         private string eventName;
         //<summary>Identifier tag number of this FSM_Event</summary>
-        private int eventId;
+        private int    eventId;
 
         //<summary>Type of FSM_Event (BASIC or STACKABLE)</summary>
         private EventType type;

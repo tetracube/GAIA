@@ -13,53 +13,48 @@ namespace GAIA{
     // <remarks>All FAs are based on this </remarks>
     public class FA_Classic {
 
-        //<summary> Identifier of this FA </summary>
-	    protected string ID;
-        //<summary> List of states of this FA </summary>
-	    protected List<State> StatesList;
+		//<summary>Name of the FSM based on this FA</summary>
+		protected string name;
+		//<summary>Identifier number of this FA</summary>
+		protected int FAId;
+		//<summary> List of states of this FA </summary>
+		protected List<State> StatesList;
         //<summary> List of transitions of this FA </summary>			
 	    protected List<Transition> TransitionsList;
-        //<summary> Number of not added states </summary>
-        protected int n_notAddedStates;
-        //<summary> Number of not added transitions </summary>
-        protected int n_notAddedTransitions;
-        //<summary> Tag that identifies this FA </summary>
-	    protected int FA_tag;
+
         //<summary> Position in the FA (used internally) </summary>
-	    protected int positionInGraph;
+	    protected int stateIndex;
         //<summary> Type of FA</summary>
 	    protected FAType FAtype;
-        //<summary> Flag that determines if there is one initial state in this FA</summary>						
-	    protected bool existInitial;
         //<summary> Initial state</summary>			
-	    protected State initial;
+	    protected State initial = null;
         //<summary> Events Routine for this FA</summary>						
 	    protected string CallbackName;
         //<summary> Probabilistic</summary>
 	    protected bool FlagProbabilistic;
 
+		//Accounting purpouses only
+		//<summary> Number of not added states </summary>
+		protected int n_notAddedStates;
+		//<summary> Number of not added transitions </summary>
+		protected int n_notAddedTransitions;
+
+		//<summary> Tag that identifies this FA </summary>
 		public enum FAType
         {
 			NULL,
 			CLASSIC,
 			INERTIAL,
 			STACK_BASED,
-			CONCURRENT_STATES
+			CONCURRENT
         }
 
 		// <summary>
-		// Get a string that has the name of a given type of State Machine and returns the type of finite state machine associated
+		// Determines if there is one initial state in this FA
 		// </summary>
-		// <returns>FAType</returns>
+		// <returns>bool</returns>
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
-		public static FAType string2Tag (string s)
-        {
-			FAType type;
-
-			if (Enum.TryParse(s, out type))
-				 return type;
-			else return FAType.NULL;
-		}
+		public bool existInitial() { return null == initial; }
 
 		// <summary>
 		// Initializes a new instance of the <see cref="T:FA_Classic">FA_Classic</see> class. 
@@ -70,14 +65,13 @@ namespace GAIA{
 		// <param name="FlagProbabilistic">If set to <see langword="true"/>, then, it is a probabilistic FA_Classic ; otherwise, it is a deterministic FA_Classic</param>
 		// <remarks></remarks>
 		public FA_Classic(string ID, int tag, string CallbackName, bool FlagProbabilistic){
-		    this.ID = ID;
-		    existInitial = false;
+		    name = ID;
 		    StatesList = new List<State>();
 		    TransitionsList = new List<Transition>();
 		    n_notAddedStates = n_notAddedTransitions = 0;
-		    positionInGraph = -1; //Default value
+		    stateIndex = -1; //Default value
 		    FAtype = FAType.CLASSIC;
-		    FA_tag = tag;
+		    FAId = tag;
 		    this.CallbackName = CallbackName;
 		    this.FlagProbabilistic = FlagProbabilistic;
 	    }
@@ -90,9 +84,8 @@ namespace GAIA{
 	    public virtual void Start () {
 		    foreach(State st in StatesList){
 			    if(st.initial){
-				    existInitial = true;
 				    initial = st;
-				    positionInGraph = StatesList.IndexOf(st);
+				    stateIndex = StatesList.IndexOf(st);
 			    }
 			    if(st.getSubFA()!=null)
 				    st.getSubFA().Start();
@@ -151,7 +144,7 @@ namespace GAIA{
 		// <returns>An identifier number</returns>
 		// <remarks></remarks>
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
-		public int getTag(){ return FA_tag; }
+		public int getTag(){ return FAId; }
 
 		// <summary>
 		// Get the events routine of the FSM based on this FA
@@ -192,14 +185,6 @@ namespace GAIA{
 		// <remarks>Only can be used if FSM_Parser is used too</remarks>
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
 		public int getNotAddedTransitions(){ return n_notAddedTransitions; }
-
-		// <summary>
-		//Get a boolean flag that determines if exist one initial state in the FSM based on this FA
-		// </summary>
-		// <returns>True or False</returns>
-		// <remarks></remarks>
-		[MethodImpl(MethodImplOptions.AggressiveInlining)]
-		public bool ExistInitial(){ return existInitial; }
 
 		// <summary>
 		// Get the StatesList
@@ -281,7 +266,7 @@ namespace GAIA{
 		// <returns>The name of the FSM based on this FA</returns>
 		// <remarks></remarks>
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
-		public virtual string getFAid() { return ID; }
+		public virtual string getFAid() { return name; }
 
 		// <summary>
 		// Get if the FSM based on this FA is probabilistic or not
