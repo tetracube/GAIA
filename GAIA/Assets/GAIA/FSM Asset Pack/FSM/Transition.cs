@@ -134,7 +134,7 @@ public class Transition {
     // <returns>Double number</returns>
     // <remarks></remarks>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public double getProbability() { return probability; }
+    public double? getProbability() { if(probability!=null) return probability; else return SURE_EVENT; }
 
     // <summary>
     // Get the origin state of this transition
