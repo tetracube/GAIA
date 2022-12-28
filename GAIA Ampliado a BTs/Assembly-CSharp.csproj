@@ -58,6 +58,8 @@
   <ItemGroup>
     <Compile Include="Assets\Scripts\Tank\TankMovement.cs" />
     <Compile Include="Assets\Scripts\Tank\TankHealth.cs" />
+    <Compile Include="Assets\_Completed-Assets\Scripts\UI\UIDirectionControl.cs" />
+    <Compile Include="Assets\_Completed-Assets\Scripts\Tank\TankMovement.cs" />
     <Compile Include="Assets\GAIA\PandaBehaviour\Examples\03_Shooter\Assets\ShooterGameController.cs" />
     <Compile Include="Assets\GAIA\PandaBehaviour\Examples\02_PlayTag\Assets\Computer.cs" />
     <Compile Include="Assets\GAIA\PandaBehaviour\Examples\03_Shooter\Assets\Unit.cs" />
@@ -70,14 +72,19 @@
     <Compile Include="Assets\Scripts\Shell\ShellExplosion.cs" />
     <Compile Include="Assets\Scripts\Tank\NavMeshMovementBT.cs" />
     <Compile Include="Assets\Scripts\UI\UIDirectionControl.cs" />
+    <Compile Include="Assets\_Completed-Assets\Scripts\Tank\TankHealth.cs" />
     <Compile Include="Assets\TutorialInfo\Scripts\Readme.cs" />
     <Compile Include="Assets\GAIA\FSM Asset Pack\FSM\Event.cs" />
+    <Compile Include="Assets\_Completed-Assets\Scripts\Camera\CameraControl.cs" />
     <Compile Include="Assets\GAIA\FSM Asset Pack\FSM\GAIA_Manager.cs" />
     <Compile Include="Assets\GAIA\PandaBehaviour\Examples\03_Shooter\Assets\WaypointPath.cs" />
+    <Compile Include="Assets\_Completed-Assets\Scripts\Shell\ShellExplosion.cs" />
+    <Compile Include="Assets\_Completed-Assets\Scripts\Tank\TankShooting.cs" />
     <Compile Include="Assets\Scripts\Camera\CameraControl.cs" />
     <Compile Include="Assets\Scripts\Managers\GameManager.cs" />
     <Compile Include="Assets\GAIA\FSM Asset Pack\FSM\FSM_Machine.cs" />
     <Compile Include="Assets\GAIA\PandaBehaviour\Examples\03_Shooter\Assets\Patroller.cs" />
+    <Compile Include="Assets\_Completed-Assets\Scripts\Managers\GameManager.cs" />
     <Compile Include="Assets\GAIA\FSM Asset Pack\FSM\State.cs" />
     <Compile Include="Assets\GAIA\PandaBehaviour\Examples\03_Shooter\Assets\FollowCamera.cs" />
     <Compile Include="Assets\Scripts\Managers\TankManager.cs" />
@@ -85,6 +92,7 @@
     <Compile Include="Assets\GAIA\PandaBehaviour\Examples\03_Shooter\Assets\AIVision.cs" />
     <Compile Include="Assets\GAIA\PandaBehaviour\Examples\03_Shooter\Assets\TriggerType.cs" />
     <Compile Include="Assets\GAIA\FSM Asset Pack\FSM\Transition.cs" />
+    <Compile Include="Assets\_Completed-Assets\Scripts\Managers\TankManager.cs" />
     <Compile Include="Assets\GAIA\PandaBehaviour\Core\PandaBehaviour.cs" />
     <Compile Include="Assets\GAIA\PandaBehaviour\Examples\03_Shooter\Assets\Bullet.cs" />
     <Compile Include="Assets\GAIA\PandaBehaviour\Examples\00_ChangeColor\Assets\MyCube.cs" />
