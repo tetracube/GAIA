@@ -46,7 +46,7 @@ public class Transition {
 		transitionName = ID;
 		origin = A;
 		final = B;
-		transitionId = (int)Tags.name2Tag<Tags.TransitionTags>(transitionName);
+            transitionId = (int)Utils.name2Tag<global::Utils.TransitionTags>(transitionName);
 		action = action_tag;
 		this.EventsList = EventsList;
 	}
@@ -66,7 +66,7 @@ public class Transition {
 		transitionName = ID;
 		origin = A;
 		final = B;
-		transitionId = (int)Tags.name2Tag<Tags.TransitionTags>(transitionName);
+            transitionId = (int)Utils.name2Tag<global::Utils.TransitionTags>(transitionName);
 		action = action_tag;
 		this.EventsList = EventsList;
 		this.probability = probability;
@@ -134,7 +134,7 @@ public class Transition {
     // <returns>Double number</returns>
     // <remarks></remarks>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public double? getProbability() { if(probability!=null) return probability; else return SURE_EVENT; }
+    public double getProbability() { return probability; }
 
     // <summary>
     // Get the origin state of this transition

@@ -1,0 +1,75 @@
+<?xml version="1.0" encoding="utf-8" ?>
+
+<Agent>
+  <Name><!-- Name of the agent --></Name>
+  <Type><!-- Technology to be used (MLAgents for now) --></Type>
+  <Train/><!-- Use it when training -->
+  <AutomaticRequester/><!-- Use it if you want the agent to take actions without you requesting them -->
+
+  <Observations>1</Observations><!-- Number of inputs to the neural network -->
+
+  <!-- Integer ranges the agent can output. Add at will -->
+  <DiscreteActions>
+    <!-- Action is in integer range [-3, 5] -->
+    <DiscreteAction from="-3" to="5"></DiscreteAction>
+  </DiscreteActions>
+  
+  <!-- Decimal ranges the agent can output. Add at will -->
+  <ContinuousActions>
+    <!-- Action is in decimal range [-5, 7] -->
+    <ContinuousAction from="-5" to="7" />
+  </ContinuousActions>
+
+  <!-- Learning parameters -->
+  <Environment>
+
+    <Resume/> <!-- Use it to continue the learning from where it was left off -->
+    <Algorithm><!-- Reinforcement learning algorithm to be used (PPO for now) --></Algorithm>
+    <LearningRate><!-- Learning rate (speed of learning) --></LearningRate>
+    <BatchSize><!-- Number of experiences to take into consideration each gradient descent step  --></BatchSize>
+    <!-- Network structure managing the agent behavior -->
+    <Network>
+      <HiddenLayers><!-- Number of hidden layers --></HiddenLayers>
+      <NeuronsPerLayer><!-- Number of neurons per layer --></NeuronsPerLayer>
+      <!-- LSTM settings for the neural network -->
+      <Memory>
+        <Size><!-- If set, the agent will use an LSTM. It indicates the size of the hidden state. --></Size>
+        <SequenceLength>
+          <!-- How many experiences the LSTM will take into consideration
+          each step. The bigger, the more the neural network knows -->
+        </SequenceLength>
+      </Memory>
+    </Network>
+
+    <!-- Rewards from the environment -->
+    <ExtrinsicRewards>
+      <Strength><!-- Factor by which the reward from the environment is multiplied --></Strength>
+      <Gamma><!-- Discount factor for future rewards. Larger means it does not care about future --></Gamma>
+    </ExtrinsicRewards>
+
+    <!-- Rewards from Curiosity module that makes the agent to explore new alternatives -->
+    <Curiosity>
+      <Strength><!-- Factor by which the reward is multiplied --></Strength>
+      <Gamma><!-- Discount factor for future rewards. Larger means it does not care about future --></Gamma>
+      <LearningRate><!-- Learning rate of the neural network manging Curiosity --></LearningRate>
+      <!-- Network structure managing Curiosity -->
+      <Network>
+        <HiddenLayers><!-- Number of hidden layers --></HiddenLayers>
+        <NeuronsPerLayer><!-- Number of neurons per layer --></NeuronsPerLayer>
+        <!-- LSTM settings for the neural network -->
+        <Memory>
+          <Size>
+            <!-- If set, the agent will use an LSTM. It indicates the size of the hidden state. -->
+          </Size>
+          <SequenceLength>
+            <!-- How many experiences the LSTM will take into consideration
+          each step. The bigger, the more the neural network knows -->
+          </SequenceLength>
+        </Memory>
+      </Network>
+    </Curiosity>
+
+  </Environment>
+
+</Agent>
+

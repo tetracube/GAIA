@@ -5,7 +5,6 @@ using System.Collections.Generic;
 using System.Xml;
 using System;
 using System.IO;
-using UnityEditor;
 using GAIA;
 using System.Runtime.CompilerServices;
 
@@ -36,17 +35,21 @@ namespace GAIAXML
         
 		//Number of found errors in the FSM parsing process
 		int numErrors,
-		//Number of found errors in the BT parsing process
-			numErrorsBT;
-		
+			//Number of found errors in the BT parsing process
+			numErrorsBT,
+			//Number of found errors in the Agents parsing process
+			numErrorsAgents;
+
 		//Amount of Loaded FSM
 		int LoadedMachines,
 			//Amount of Loaded subFSM
 			LoadedSubMachines,
 			//Amount of Loaded BTs
 			LoadedBTs,
-		//Amount of Trees Loaded in a BT
-			treesAdded;
+			//Amount of Trees Loaded in a BT
+			treesAdded,
+			//Amount of Loaded Agents
+			LoadedAgents;
 		//Auxiliar State used internally to control hierarchy while parsing FSM
 		State aux;
 
@@ -54,7 +57,7 @@ namespace GAIAXML
 		// Initializes a new instance of the GAIA_Parser class.
 		public GAIA_Parser()
 		{
-			LoadedMachines = LoadedSubMachines = LoadedBTs = numErrors = numErrorsBT = 0;
+			LoadedMachines = LoadedSubMachines = LoadedBTs = LoadedAgents = numErrors = numErrorsBT = numErrorsAgents = 0;
 			string logPath = System.IO.Directory.GetCurrentDirectory() + "/Assets/GAIA/FSM Asset Pack/Parser/ParsingLog.txt";
 			file = new System.IO.StreamWriter(logPath);
 		}
@@ -71,8 +74,9 @@ namespace GAIAXML
 			LogLines +="\r\nNumber of submachines: "+LoadedSubMachines;
 			LogLines +="\r\nTOTAL MACHINES ADDED: "+LoadedMachines;
 			LogLines += "\r\nNUMBER OF BTs ADDED: " + LoadedBTs;
+			LogLines += "\r\nNUMBER OF AGENTS ADDED: " + LoadedAgents;
 
-			file.WriteLine("LOG FILE\t" + System.DateTime.Now + "\r\n--------------------------------------"+LogLines);
+            file.WriteLine("LOG FILE\t" + System.DateTime.Now + "\r\n--------------------------------------"+LogLines);
 			//Closing log file
 			file.Close (); 
 		}
@@ -220,7 +224,7 @@ namespace GAIAXML
 				//***MACHINE TYPE SWITCH***
 				LogLines += "\r\n \r\n=============================================================================================";
 
-				FA_Classic.FAType FAtype = Tags.name2Tag<FA_Classic.FAType>(FSMtype);
+				FA_Classic.FAType FAtype = GAIA.Utils.name2Tag<FA_Classic.FAType>(FSMtype);
 
 				switch (FAtype) {
 				case FA_Classic.FAType.CLASSIC:
@@ -260,9 +264,9 @@ namespace GAIAXML
 							//addState(new State(string name, string initial, int tag, int action, int in_action, int out_action))
 							aux = new State(stateName, 
 											initialState.Equals("YES"),
-											(int)Tags.name2Tag<Tags.ActionTags>(actionName), 
-											(int)Tags.name2Tag<Tags.ActionTags>(inActionName), 
-											(int)Tags.name2Tag<Tags.ActionTags>(outActionName)
+											(int)GAIA.Utils.name2Tag<Utils.ActionTags>(actionName), 
+											(int)GAIA.Utils.name2Tag<Utils.ActionTags>(inActionName), 
+											(int)GAIA.Utils.name2Tag<Utils.ActionTags>(outActionName)
 										);
 							if (fsm_p.addState(aux))
 							{
@@ -328,7 +332,7 @@ namespace GAIAXML
 
 						//Add a new transition with ID between the states A and B (always that both are in the graph or ID != "")
 						if(A!=null && B!=null){
-							int T_action		= (int)Tags.name2Tag<Tags.ActionTags>(getName(transitionFields, (int)TransitionFields.ACTION));
+							int T_action		= (int)GAIA.Utils.name2Tag<Utils.ActionTags>(getName(transitionFields, (int)TransitionFields.ACTION));
 							XmlNodeList events	= transitionFields.Item((int)TransitionFields.EVENTS).ChildNodes;
 							
 							//Transition's EventsList 
@@ -336,7 +340,7 @@ namespace GAIAXML
 							foreach(XmlNode n in events){
 								String eventName = n.ChildNodes.Item(0).InnerText;
 								EventsList.Add(new Event(eventName,								//Event name
-														 (int)Tags.name2Tag<Tags.EventTags>(eventName),	//Event id
+														 (int)GAIA.Utils.name2Tag<Utils.EventTags>(eventName),	//Event id
 														 n.ChildNodes.Item(1).InnerText));		//Type of event
 							}
 							Transition newT;
@@ -434,10 +438,10 @@ namespace GAIAXML
 							}
 							aux = new State(stateFields.Item (0).InnerText, 
 											statesList.Item (i).Attributes.Item (0).InnerText.Equals("YES"), 
-											(int)Tags.name2Tag<Tags.StateTags>(stateFields.Item (0).InnerText), 
-											(int)Tags.name2Tag<Tags.ActionTags>(stateFields.Item (1).InnerText), 
-											(int)Tags.name2Tag<Tags.ActionTags>(statesList.Item (i).ChildNodes.Item (2).InnerText), 
-											(int)Tags.name2Tag<Tags.ActionTags>(statesList.Item (i).ChildNodes.Item (3).InnerText), credits);
+											(int)GAIA.Utils.name2Tag<Utils.StateTags>(stateFields.Item (0).InnerText), 
+											(int)GAIA.Utils.name2Tag<Utils.ActionTags>(stateFields.Item (1).InnerText), 
+											(int)GAIA.Utils.name2Tag<Utils.ActionTags>(statesList.Item (i).ChildNodes.Item (2).InnerText), 
+											(int)GAIA.Utils.name2Tag<Utils.ActionTags>(statesList.Item (i).ChildNodes.Item (3).InnerText), credits);
 							if (fsm_cs.addState(aux)) {
 								LogLines += "\r\n>>ADDED STATE '" + stateFields.Item(0).InnerText + "'.";
 								#region check possible submachine
@@ -494,14 +498,14 @@ namespace GAIAXML
 						if(A!=null && B!=null){
 
 							string T_ID 	= transitionFields.Item (0).InnerText;
-							int T_tag	= (int)Tags.name2Tag<Tags.TransitionTags>(transitionFields.Item (0).InnerText);
-							int T_action = (int)Tags.name2Tag<Tags.TransitionTags>(transitionFields.Item (3).InnerText);
+							int T_tag	= (int)GAIA.Utils.name2Tag<Utils.TransitionTags>(transitionFields.Item (0).InnerText);
+							int T_action = (int)GAIA.Utils.name2Tag<Utils.TransitionTags>(transitionFields.Item (3).InnerText);
 							XmlNodeList events = transitionFields.Item(4).ChildNodes;
 							
 							//Transition's EventsList 
 							List<Event> EventsList = new List<Event>();
 							foreach(XmlNode n in events){
-								EventsList.Add(new Event(n.ChildNodes.Item(0).InnerText, (int)Tags.name2Tag<Tags.EventTags>(n.ChildNodes.Item(0).InnerText), n.ChildNodes.Item(1).InnerText));
+								EventsList.Add(new Event(n.ChildNodes.Item(0).InnerText, (int)GAIA.Utils.name2Tag<Utils.EventTags>(n.ChildNodes.Item(0).InnerText), n.ChildNodes.Item(1).InnerText));
 							}
 							
 							Transition newT;
@@ -586,7 +590,7 @@ namespace GAIAXML
 						}
 						//Add a new State with latency
 						if (statesList.Item (i).ChildNodes.Item (0).InnerText.Trim ().Length != 0 && statesList.Item (i).Attributes.Item (0).InnerText.Trim ().Length != 0 && statesList.Item (i).ChildNodes.Item (1).InnerText.Trim ().Length != 0) {
-							aux = new State (statesList.Item (i).ChildNodes.Item (0).InnerText, statesList.Item (i).Attributes.Item (0).InnerText.Equals("YES"), (int)Tags.name2Tag<Tags.ActionTags>(statesList.Item (i).ChildNodes.Item (1).InnerText), (int)Tags.name2Tag<Tags.ActionTags>(statesList.Item (i).ChildNodes.Item (2).InnerText), (int)Tags.name2Tag<Tags.ActionTags>(statesList.Item (i).ChildNodes.Item (3).InnerText), lat);
+							aux = new State (statesList.Item (i).ChildNodes.Item (0).InnerText, statesList.Item (i).Attributes.Item (0).InnerText.Equals("YES"), (int)GAIA.Utils.name2Tag<Utils.ActionTags>(statesList.Item (i).ChildNodes.Item (1).InnerText), (int)GAIA.Utils.name2Tag<Utils.ActionTags>(statesList.Item (i).ChildNodes.Item (2).InnerText), (int)GAIA.Utils.name2Tag<Utils.ActionTags>(statesList.Item (i).ChildNodes.Item (3).InnerText), lat);
 							if (fsm_i.addState(aux)) {
 								LogLines += "\r\n>>ADDED STATE '" + statesList.Item(i).ChildNodes.Item(0).InnerText + "'.";
 								#region check possible submachine
@@ -648,14 +652,14 @@ namespace GAIAXML
 						if(A!=null && B!=null){
 							
 							string T_ID 	= transitionsList.Item (i).ChildNodes.Item (0).InnerText;
-							int T_tag	= (int)Tags.name2Tag<Tags.TransitionTags>(transitionsList.Item (i).ChildNodes.Item (0).InnerText);
-							int T_action = (int)Tags.name2Tag<Tags.TransitionTags>(transitionsList.Item (i).ChildNodes.Item (3).InnerText);
+							int T_tag	= (int)GAIA.Utils.name2Tag<Utils.TransitionTags>(transitionsList.Item (i).ChildNodes.Item (0).InnerText);
+							int T_action = (int)GAIA.Utils.name2Tag<Utils.TransitionTags>(transitionsList.Item (i).ChildNodes.Item (3).InnerText);
 							XmlNodeList events = transitionsList.Item(i).ChildNodes.Item(4).ChildNodes;
 							
 							//Transition's EventsList 
 							List<Event> EventsList = new List<Event>();
 							foreach(XmlNode n in events){
-								EventsList.Add(new Event(n.ChildNodes.Item(0).InnerText, (int)Tags.name2Tag<Tags.EventTags>(n.ChildNodes.Item(0).InnerText), n.ChildNodes.Item(1).InnerText));
+								EventsList.Add(new Event(n.ChildNodes.Item(0).InnerText, (int)GAIA.Utils.name2Tag<Utils.EventTags>(n.ChildNodes.Item(0).InnerText), n.ChildNodes.Item(1).InnerText));
 							}
 							
 							Transition newT;
@@ -729,7 +733,7 @@ namespace GAIAXML
 						}
 						//Add a new State
 						if (statesList.Item (i).ChildNodes.Item (0).InnerText.Trim ().Length != 0 && statesList.Item (i).Attributes.Item (0).InnerText.Trim ().Length != 0 && statesList.Item (i).ChildNodes.Item (1).InnerText.Trim ().Length != 0) {
-							aux = new State (statesList.Item (i).ChildNodes.Item (0).InnerText, statesList.Item (i).Attributes.Item (0).InnerText.Equals("YES"), (int)Tags.name2Tag<Tags.ActionTags>(statesList.Item (i).ChildNodes.Item (1).InnerText), (int)Tags.name2Tag<Tags.ActionTags>(statesList.Item (i).ChildNodes.Item (2).InnerText), (int)Tags.name2Tag<Tags.ActionTags>(statesList.Item (i).ChildNodes.Item (3).InnerText), pri);
+							aux = new State (statesList.Item (i).ChildNodes.Item (0).InnerText, statesList.Item (i).Attributes.Item (0).InnerText.Equals("YES"), (int)GAIA.Utils.name2Tag<Utils.ActionTags>(statesList.Item (i).ChildNodes.Item (1).InnerText), (int)GAIA.Utils.name2Tag<Utils.ActionTags>(statesList.Item (i).ChildNodes.Item (2).InnerText), (int)GAIA.Utils.name2Tag<Utils.ActionTags>(statesList.Item (i).ChildNodes.Item (3).InnerText), pri);
 							if (fsm_s.addState(aux)) {
 								LogLines += "\r\n>>ADDED STATE '" + statesList.Item(i).ChildNodes.Item(0).InnerText + "'.";
 								#region check possible submachine
@@ -790,15 +794,15 @@ namespace GAIAXML
 							if (A != null && B != null)
 							{
 								string T_ID = transitionsList.Item(i).ChildNodes.Item(0).InnerText;
-								int T_tag = (int)Tags.name2Tag<Tags.TransitionTags>(transitionsList.Item(i).ChildNodes.Item(0).InnerText);
-								int T_action = (int)Tags.name2Tag<Tags.ActionTags>(transitionsList.Item(i).ChildNodes.Item(3).InnerText);
+								int T_tag = (int)GAIA.Utils.name2Tag<Utils.TransitionTags>(transitionsList.Item(i).ChildNodes.Item(0).InnerText);
+								int T_action = (int)GAIA.Utils.name2Tag<Utils.ActionTags>(transitionsList.Item(i).ChildNodes.Item(3).InnerText);
 								XmlNodeList events = transitionsList.Item(i).ChildNodes.Item(4).ChildNodes;
 
 								//Transition's EventsList 
 								List<Event> EventsList = new List<Event>();
 								foreach (XmlNode n in events)
 								{
-									EventsList.Add(new Event(n.ChildNodes.Item(0).InnerText, (int)Tags.name2Tag<Tags.EventTags>(n.ChildNodes.Item(0).InnerText), n.ChildNodes.Item(1).InnerText));
+									EventsList.Add(new Event(n.ChildNodes.Item(0).InnerText, (int)GAIA.Utils.name2Tag<Utils.EventTags>(n.ChildNodes.Item(0).InnerText), n.ChildNodes.Item(1).InnerText));
 								}
 
 								Transition newT;
@@ -1089,5 +1093,277 @@ namespace GAIAXML
 			return parsedbt;
 		}
 #endif
+
+		private enum EAIType
+		{
+			FSM, BT, AGENT
+		}
+
+		private void LogMissingTag(string Tag, string FilePath, EAIType AIType)
+		{
+            LogLines += "\r\n>>ERROR. There must be a '" + Tag + "' tag in the " + AIType.ToString() + " with contents\r\n" + FilePath + "'.";
+        }
+
+		private void LogHeader()
+		{
+            LogLines += "\r\n \r\n=============================================================================================";
+        }
+
+		public AgentConfig ParseAgent(string Name, string Content)
+		{
+            GAIA.Utils.Log("Parsing agent " + Name, "parser.log");
+            AgentConfig AgentConfig = IAgent.DefaultConfig();
+			xDoc = new XmlDocument();
+
+			LogHeader();
+
+			try
+			{
+				xDoc.LoadXml(Content);
+			}
+			catch (FileNotFoundException)
+			{
+				numErrorsAgents++;
+				LogLines += "\r\n>>ERROR. Cannot load file: '" + Name + "'.";
+				return AgentConfig;
+			}
+			catch (Exception)
+			{
+				numErrorsAgents++;
+				LogLines += "\r\n>>ERROR. Cannot parse the document: '" + Name + "'.";
+				return AgentConfig;
+			}
+
+			XmlNode Agent = xDoc.GetElementsByTagName("Agent").Item(0);
+			if (Agent == null)
+			{
+				LogMissingTag("Agent", Content, EAIType.AGENT);
+				numErrorsAgents++;
+				return AgentConfig;
+			}
+
+			LogLines += "\r\n...LOADING AGENT '" + Name + "'";
+			AgentConfig = ParseAgent(Agent);
+			LoadedAgents++;
+			LogLines += "\r\n...AGENT LOADED SUCCESSFULLY '" + Name + "'";
+			LogLines += "\r\n\r\nErrors parsing Agents: " + numErrorsAgents + "\r\n";
+
+            return AgentConfig;
+
+            AgentConfig ParseAgent(XmlNode AgentNode)
+			{
+				XmlNode Name = xDoc.GetElementsByTagName("Name").Item(0);
+                if (Name != null)
+                {
+                    LogLines += "\r\n>>NAME: '" + Name.InnerText + "'";
+                    AgentConfig.Name = Name.InnerText;
+                }
+                else
+                { 
+                    numErrorsAgents++;
+                    LogMissingTag("Name", Content, EAIType.AGENT);
+                }
+
+                foreach (XmlNode AgentParam in AgentNode.ChildNodes)
+                {
+                    switch (AgentParam.Name)
+                    {
+                        case "Type":
+							AgentConfig.Type = AgentParam.InnerText;
+                            break;
+						case "Observations":
+							AgentConfig.NumberOfObservations = GAIA.Utils.StrToInt(AgentParam.InnerText);
+                            break;
+                        case "AutomaticRequester":
+							AgentConfig.AutomaticActionRequester = true;
+							break;
+						case "Train":
+							AgentConfig.Train = true;
+							break;
+						case "ContinuousActions":
+							AgentConfig.ContinuosActions = ParseContinuousActions(AgentParam);
+                            break;
+						case "DiscreteActions":
+							AgentConfig.DiscreteActions = ParseDiscreteActions(AgentParam);
+							break;
+						case "Environment":
+                            AgentConfig.EnvironmentConfig = ParseEnvironment(AgentParam);
+							break;
+                        default: break;
+                    }
+                }
+                return AgentConfig;
+            }
+
+            ContinuousAction[] ParseContinuousActions(XmlNode ContinuousActionsNode)
+			{
+				int ContinuousActionsCount = 0;
+				foreach (XmlNode ContinuousActionsChild in ContinuousActionsNode.ChildNodes)
+				{
+					if (ContinuousActionsChild.Name == "ContinuousAction")
+					ContinuousActionsCount++;
+				}
+                ContinuousAction[] ContinuousActions = new ContinuousAction[ContinuousActionsCount];
+				for (int i = 0; i < ContinuousActionsNode.ChildNodes.Count; i++)
+				{
+					if (ContinuousActionsNode.ChildNodes[i].Name == "ContinuousAction")
+					{
+						XmlNode Action = ContinuousActionsNode.ChildNodes[i];
+						float From = GAIA.Utils.StrToFloat(Action.Attributes["from"].Value);
+						float To = GAIA.Utils.StrToFloat(Action.Attributes["to"].Value);
+						ContinuousActions[i] = new ContinuousAction { From = From, To = To };
+					}
+				}
+				return ContinuousActions;
+            }
+
+			DiscreteAction[] ParseDiscreteActions(XmlNode DiscreteActionsNode)
+            {
+                int DiscreteActionsCount = 0;
+                foreach (XmlNode DiscreteActionsChild in DiscreteActionsNode.ChildNodes)
+                {
+                    if (DiscreteActionsChild.Name == "DiscreteAction")
+                        DiscreteActionsCount++;
+                }
+                DiscreteAction[] DiscreteActions = new DiscreteAction[DiscreteActionsCount];
+                for (int i = 0; i < DiscreteActionsNode.ChildNodes.Count; i++)
+                {
+                    if (DiscreteActionsNode.ChildNodes[i].Name == "DiscreteAction")
+                    {
+                        XmlNode Action = DiscreteActionsNode.ChildNodes[i];
+                        int From = GAIA.Utils.StrToInt(Action.Attributes["from"].Value);
+                        int To = GAIA.Utils.StrToInt(Action.Attributes["to"].Value);
+                        DiscreteActions[i] = new DiscreteAction { From = From, To = To };
+                    }
+                }
+                return DiscreteActions;
+            }
+
+            EnvironmentConfig ParseEnvironment(XmlNode EnvironmentNode)
+			{
+                EnvironmentConfig Environment = new()
+                {
+                    Name = AgentConfig.Name
+                };
+                foreach (XmlNode EnvironmentParam in EnvironmentNode.ChildNodes)
+                {
+                    switch (EnvironmentParam.Name)
+                    {
+                        case "Algorithm":
+                            Environment.Algorithm = GAIA.Utils.name2Tag<EAlgorithm>(EnvironmentParam.InnerText);
+                            break;
+                        case "LearningRate":
+                            Environment.LearningRate = GAIA.Utils.StrToFloat(EnvironmentParam.InnerText);
+                            break;
+                        case "BatchSize":
+                            Environment.BatchSize = GAIA.Utils.StrToInt(EnvironmentParam.InnerText);
+                            break;
+                        case "Network":
+                            Environment.Network = ParseNetwork(EnvironmentParam);
+                            break;
+                        case "ExtrinsicRewards":
+                            Environment.ExtrinsicRewards = ParseExtrinsicReward(EnvironmentParam);
+                            break;
+                        case "Curiosity":
+                            Environment.Curiosity = ParseCuriosity(EnvironmentParam);
+                            break;
+						case "Resume":
+							Environment.Resume = true;
+							break;
+                        default: break;
+                    }
+                }
+				return Environment;
+            }
+
+            Network ParseNetwork(XmlNode NetworkNode)
+            {
+                Network Network = new();
+                foreach (XmlNode NetworkParam in NetworkNode.ChildNodes)
+                {
+                    switch (NetworkParam.Name)
+                    {
+                        case "HiddenLayers":
+                            Network.HiddenLayers = GAIA.Utils.StrToInt(NetworkParam.InnerText);
+                            break;
+                        case "NeuronsPerLayer":
+                            Network.NeuronsPerLayer = GAIA.Utils.StrToInt(NetworkParam.InnerText);
+                            break;
+                        case "Memory":
+                            Network.Memory = ParseMemory(NetworkParam);
+                            break;
+                        default: break;
+                    }
+                }
+
+                return Network;
+            }
+
+            Memory ParseMemory(XmlNode MemoryNode)
+            {
+                Memory Memory = new();
+                foreach (XmlNode MemoryParam in MemoryNode.ChildNodes)
+                {
+                    switch (MemoryParam.Name)
+                    {
+                        case "Size":
+                            Memory.Size = GAIA.Utils.StrToInt(MemoryParam.InnerText);
+                            break;
+                        case "SequenceLength":
+                            Memory.SequenceLength = GAIA.Utils.StrToInt(MemoryParam.InnerText);
+                            break;
+                        default: break;
+                    }
+                }
+
+                return Memory;
+            }
+
+            ExtrinsicRewards ParseExtrinsicReward(XmlNode ExtrinsicRewardNode)
+            {
+                ExtrinsicRewards ExtrinsicReward = new();
+                foreach (XmlNode ExtrinsicRewardParam in ExtrinsicRewardNode.ChildNodes)
+                {
+                    switch (ExtrinsicRewardParam.Name)
+                    {
+                        case "Strength":
+                            ExtrinsicReward.Strength = GAIA.Utils.StrToFloat(ExtrinsicRewardParam.InnerText);
+                            break;
+                        case "Gamma":
+                            ExtrinsicReward.Gamma = GAIA.Utils.StrToFloat(ExtrinsicRewardParam.InnerText);
+                            break;
+                        default: break;
+                    }
+                }
+
+                return ExtrinsicReward;
+            }
+
+            Curiosity ParseCuriosity(XmlNode CuriosityNode)
+            {
+                Curiosity Curiosity = new();
+                foreach (XmlNode CuriosityParam in CuriosityNode.ChildNodes)
+                {
+                    switch (CuriosityParam.Name)
+                    {
+                        case "Strength":
+                            Curiosity.Strength = GAIA.Utils.StrToFloat(CuriosityParam.InnerText);
+                            break;
+                        case "Gamma":
+                            Curiosity.Gamma = GAIA.Utils.StrToFloat(CuriosityParam.InnerText);
+                            break;
+                        case "LearningRate":
+                            Curiosity.LearningRate = GAIA.Utils.StrToFloat(CuriosityParam.InnerText);
+                            break;
+                        case "Network":
+                            Curiosity.Network = ParseNetwork(CuriosityParam);
+                            break;
+                        default: break;
+                    }
+                }
+
+                return Curiosity;
+            }
+        }
 	}
 }

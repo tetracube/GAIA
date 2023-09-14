@@ -2,8 +2,6 @@
 #define PANDA
 
 using UnityEngine;
-using System.Collections;
-using System.IO;
 using GAIA;
 
 /// <summary>
@@ -17,6 +15,8 @@ public class GAIA_Controller : MonoBehaviour
     public TextAsset[] m_xmlFilesFSM; // ngs - xml files with the specification of the finite state machines
 
     public TextAsset[] m_xmlFilesBT; // xml files with the specification of the behavior trees
+
+    public TextAsset[] m_xmlFilesAgent; // xml files with the specification of an agent
 
     public GAIA_Manager m_manager;		 //MANAGER 		-> controls the parsing and initialization of FSMs
 
@@ -62,6 +62,15 @@ public class GAIA_Controller : MonoBehaviour
             }
         }
 #endif
+
+        if (m_xmlFilesAgent != null)
+        {
+            for (int i = 0; i < m_xmlFilesAgent.Length; i++)
+            {
+                m_manager.addAgent(m_xmlFilesAgent[i].name, m_xmlFilesAgent[i].text);
+            }
+        }
+
         parser.WriteLog("");
 
     }

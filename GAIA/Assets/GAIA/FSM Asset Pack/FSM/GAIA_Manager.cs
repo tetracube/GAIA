@@ -5,7 +5,6 @@ using System.Collections.Generic;
 using System;
 using UnityEngine;
 using Panda;
-using GAIA;
 
 namespace GAIA
 {
@@ -14,7 +13,8 @@ namespace GAIA
         OK,         ///< There is no problem
         ParserReq,  ///< There is no parser available
         WrongFA,    ///< The FA cannot be parsed or it is repeated
-        WrongBT,    ///< The FA cannot be parsed or it is repeated
+        WrongBT,    ///< The BT cannot be parsed or it is repeated
+        WrongAG, ///< The Agent cannot be parsed or it is repeated
         ParsingErr, ///< There is an error parsing the file
         TotalParsingStates
     }
@@ -31,6 +31,11 @@ namespace GAIA
         Dictionary<Tuple, FA_Classic> FSM_dic;
         //Dictionary to add a behaviour tree with the BT definition file name and its contents
         Dictionary<string, string> BT_dic;
+        //Dictionary to add an artificial neural network with its name and the Agent itself
+        Dictionary<string, AgentConfig> AG_dic;
+
+        Dictionary<string, IEnvironment> AG_Environments;
+        List<string> AG_StartedEnvironments;
 
         //Struct that allows to add a Finite automata with type+ID
         public struct Tuple
@@ -49,15 +54,22 @@ namespace GAIA
         public GAIA_Manager(GAIAXML.GAIA_Parser parser)
         {
             this.parser = parser;
-            FSM_dic = new Dictionary<Tuple, FA_Classic>();
-            BT_dic  = new Dictionary<string, string>();
+            Init();
         }
 
         // Initializes a new instance of the GAIA_Manager class.
         public GAIA_Manager()
         {
+            Init();
+        }
+
+        private void Init()
+        {
             FSM_dic = new Dictionary<Tuple, FA_Classic>();
-            BT_dic  = new Dictionary<string, string>();
+            BT_dic = new Dictionary<string, string>();
+            AG_dic = new Dictionary<string, AgentConfig>();
+            AG_Environments = new Dictionary<string, IEnvironment>();
+            AG_StartedEnvironments = new List<string>();
         }
 
         // Add a machine (passed as FA parameter) to this GAIA_Manager
@@ -265,5 +277,70 @@ namespace GAIA
             }
         }
 #endif
+
+        public ParsingErrors addAgent(string Name, string Content)
+        {
+            if (parser == null)
+            {
+                return ParsingErrors.ParserReq;
+            }
+
+            try
+            {
+                AgentConfig Config = parser.ParseAgent(Name, Content);
+                AG_dic.Add(Config.Name, Config);
+
+                if (!AG_Environments.ContainsKey(Config.Type))
+                {
+                    IEnvironment Environment = CreateEnvironmentAssociatedTo(Config.Type);
+                    AG_Environments.Add(Config.Type, Environment);
+                }
+
+                AG_Environments[Config.Type].AddConfig(Config.EnvironmentConfig);
+                return ParsingErrors.OK;
+            }
+            catch (Exception)
+            {
+                return ParsingErrors.WrongAG;
+            }
+
+            static IEnvironment CreateEnvironmentAssociatedTo(string AgentType)
+            {
+                switch (AgentType)
+                {
+                    case "MLAAgent":
+                        return new MLAEnvironment();
+                    default:
+                        return new MLAEnvironment();
+                }
+            }
+        }
+
+        public IAgent createAgent(GameObject character, string name)
+        {
+            IAgent Agent = null;
+
+            if (!AG_dic.ContainsKey(name))
+            {
+                Debug.Log("The agent " + name + " does not exist");
+                return Agent;
+            }
+
+            AgentConfig Config = AG_dic[name];
+            if (!AG_StartedEnvironments.Contains(Config.Type) && Config.Train)
+            {
+                AG_StartedEnvironments.Add(Config.Type);
+                AG_Environments[Config.Type].Start();
+            }
+
+            Type AgentType = Type.GetType(Config.Type);
+            Agent = (IAgent)character.AddComponent(AgentType);
+            if (Agent != null)
+            {
+                Agent.Config = Config;
+            }
+
+            return Agent;
+        }
     }
 }

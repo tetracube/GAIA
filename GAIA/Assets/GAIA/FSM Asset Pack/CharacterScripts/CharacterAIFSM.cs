@@ -1,5 +1,4 @@
 ﻿using UnityEngine;
-using UnityEngine.AI;
 using System.Collections.Generic;
 using System.Runtime.CompilerServices;
 using GAIA;
@@ -40,7 +39,7 @@ public class CharacterAIFSM : MonoBehaviour
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    private void addNoEvent() { FSMevents.Add((int)Tags.EventTags.NULL); }
+    private void addNoEvent() { FSMevents.Add((int)Utils.EventTags.NULL); }
 
     // Start is called before the first frame update
     void Start()
@@ -84,18 +83,18 @@ public class CharacterAIFSM : MonoBehaviour
     {
         switch (actionTag)
         {
-            case (int)Tags.ActionTags.APARTAR:
+            case (int)Utils.ActionTags.APARTAR:
                 Aim();
                 moveBack();
                 Shoot();
                 break;
 
-            case (int)Tags.ActionTags.DISPARAR:
+            case (int)Utils.ActionTags.DISPARAR:
                 Aim();
                 Shoot();
                 break;
 
-            case (int)Tags.ActionTags.MOVERSE:
+            case (int)Utils.ActionTags.MOVERSE:
                 Move();
                 break;
         }
@@ -107,22 +106,22 @@ public class CharacterAIFSM : MonoBehaviour
 
         if (distance < 5)
         {
-            FSMevents.Add((int)Tags.EventTags.DEMASIADO_CERCA);
+            FSMevents.Add((int)Utils.EventTags.DEMASIADO_CERCA);
         }
 
         if (distance > 17)
         {
-            FSMevents.Add((int)Tags.EventTags.DISTANCIA_NO_OK);
+            FSMevents.Add((int)Utils.EventTags.DISTANCIA_NO_OK);
         }
 
         if (distance <= 17 && distance >= 5)
         {
-            FSMevents.Add((int)Tags.EventTags.DISTANCIA_OK);
+            FSMevents.Add((int)Utils.EventTags.DISTANCIA_OK);
         }
 
         if (FSMevents.Count == 0)
         {
-            FSMevents.Add((int)Tags.EventTags.NULL);
+            FSMevents.Add((int)Utils.EventTags.NULL);
         }
 
         return FSMevents;
@@ -141,7 +140,7 @@ public class CharacterAIFSM : MonoBehaviour
 
         FSMactions = FSM.Update();
         for (int i = 0; i < FSMactions.Count; i++)
-            if (FSMactions[i] != (int)Tags.ActionTags.NULL)
+            if (FSMactions[i] != (int)Utils.ActionTags.NULL)
                 ExecuteAction(FSMactions[i]);
     }
 }

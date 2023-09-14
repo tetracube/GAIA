@@ -64,7 +64,7 @@ namespace GAIA{
 		    stateName = ID;
 		    initial = FlagInitial;
 		    Transitions = new List<Transition>();
-            stateId = (int)Tags.name2Tag<Tags.StateTags>(stateName);
+            stateId = (int)Utils.name2Tag<global::Utils.StateTags>(stateName);
             action = action_tag;
 		    this.in_action = in_action_TAG;
 		    this.out_action = out_action_TAG;
@@ -86,7 +86,7 @@ namespace GAIA{
 		    stateName = ID;
 		    initial = FlagInitial;
 		    Transitions = new List<Transition>();
-		    stateId = (int)Tags.name2Tag<Tags.StateTags>(stateName);
+            stateId = (int)Utils.name2Tag<global::Utils.StateTags>(stateName);
 		    action = action_tag;
 		    this.in_action = in_action_TAG;
 		    this.out_action = out_action_TAG;
@@ -108,7 +108,7 @@ namespace GAIA{
 		    stateName = ID;
 		    initial = FlagInitial;
 		    Transitions = new List<Transition>();
-		    stateId = (int)Tags.name2Tag<Tags.StateTags>(stateName);
+            stateId = (int)Utils.name2Tag<global::Utils.StateTags>(stateName);
             action = action_tag;
 		    this.in_action = in_action_TAG;
 		    this.out_action = out_action_TAG;
