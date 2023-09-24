@@ -1,0 +1,48 @@
+<?l version="1.0" encoding="utf-8" ?>
+
+<Agent>
+
+  <Name>TankImitation</Name>
+  <Type>MLAAgent</Type>
+  <AutomaticRequester/>
+
+  <Observations>1</Observations>
+  
+  <DiscreteActions>
+    <DiscreteAction from="0" to="1" />
+    <DiscreteAction from="0" to="1" />
+    <DiscreteAction from="0" to="1" />
+  </DiscreteActions>
+
+  <Environment>
+
+    <Algorithm>PPO</Algorithm>
+    <LearningRate>0.0003</LearningRate>
+    <BatchSize>256</BatchSize>
+    <Network>
+      <HiddenLayers>4</HiddenLayers>
+      <NeuronsPerLayer>64</NeuronsPerLayer>
+      <Memory>
+        <Size>256</Size>
+        <SequenceLength>64</SequenceLength>
+      </Memory>
+    </Network>
+
+    <ExtrinsicRewards>
+      <Strength>0.95</Strength>
+      <Gamma>0.99</Gamma>
+    </ExtrinsicRewards>
+
+    <Curiosity>
+      <Strength>0.80</Strength>
+      <Gamma>0.99</Gamma>
+      <LearningRate>0.0003</LearningRate>
+      <Network>
+        <HiddenLayers>4</HiddenLayers>
+        <NeuronsPerLayer>64</NeuronsPerLayer>
+      </Network>
+    </Curiosity>
+
+  </Environment>
+
+</Agent>
