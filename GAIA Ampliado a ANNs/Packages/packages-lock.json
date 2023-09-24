@@ -97,7 +97,7 @@
       "url": "https://packages.unity.com"
     },
     "com.unity.ml-agents": {
-      "version": "file:D:/Dev/Videogames/UnityProjects/ml-agents/com.unity.ml-agents",
+      "version": "file:./mlagents/com.unity.ml-agents",
       "depth": 0,
       "source": "local",
       "dependencies": {
