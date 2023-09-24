@@ -1,0 +1,33 @@
+tree("Root")
+	//Adjust position, aim and shoot, in that order
+	sequence
+		tree("Movement")
+		tree("Aiming")
+		tree("Shooting")
+
+tree("Movement")
+	//Check if position is too far, too close or just right and act acordingly
+	fallback
+		sequence
+			tooFar
+			Move
+
+		sequence
+			tooClose
+			MoveBack
+
+		isStopped
+
+tree("Aiming")
+	//If tank is not moving, Aim
+	sequence
+		isStopped
+		Aim
+
+tree("Shooting")
+	//If we aimed, check if we are moving, check distance again, aim again and shoot
+	sequence
+		isStopped
+		shootingRange
+		Aim
+		Shoot

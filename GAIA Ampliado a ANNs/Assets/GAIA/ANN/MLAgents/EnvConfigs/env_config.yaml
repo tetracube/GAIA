@@ -1,0 +1,24 @@
+behaviors:
+  TankTrained:
+    trainer_type: ppo
+    summary_freq: 10000
+    checkpoint_interval: 10000
+    max_steps: 10000000
+    threaded: true
+    hyperparameters:
+      batch_size: 256
+      learning_rate: 0.0003
+    network_settings:
+      num_layers: 4
+      hidden_units: 64
+      memory:
+        sequence_length: 64
+        memory_size: 256
+    reward_signals:
+      extrinsic:
+        strength: 0.95
+        gamma: 0.99
+      curiosity:
+        strength: 0.8
+        gamma: 0.99
+        learning_rate: 0.0003
