@@ -4,6 +4,7 @@
 
   <Name>TankTrained</Name>
   <Type>MLAAgent</Type>
+  <AutomaticRequester/>
 
   <Observations>1</Observations>
   
